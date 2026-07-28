@@ -1,4 +1,4 @@
-import OrderStatusBadge from '@/Components/OrderStatusBadge';
+import OrderStatusBadges from '@/Components/Account/OrderStatusBadges';
 import { OrderSummary } from '@/types';
 import { Link } from '@inertiajs/react';
 
@@ -80,51 +80,56 @@ export default function OrderCard({
     href: string;
 }) {
     return (
-        <Link
-            href={href}
-            className="group block rounded-xl border border-brand-200 bg-white p-4 shadow-card transition hover:border-brand-400 hover:shadow-md"
-        >
-            <div className="flex items-center gap-4">
-                <OrderPreviewImages
-                    images={order.preview_images ?? []}
-                    overflow={order.preview_overflow ?? 0}
-                    itemsCount={order.items_count}
-                />
+        <div className="overflow-hidden rounded-xl border border-brand-200 bg-white shadow-card transition hover:border-brand-400 hover:shadow-md">
+            <Link href={href} className="group block p-4">
+                <div className="flex items-center gap-4">
+                    <OrderPreviewImages
+                        images={order.preview_images ?? []}
+                        overflow={order.preview_overflow ?? 0}
+                        itemsCount={order.items_count}
+                    />
 
-                <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div>
-                            <p className="font-medium text-brand-900 group-hover:underline">
-                                {order.order_number}
-                            </p>
-                            <p className="mt-1 text-sm text-brand-600">
-                                {formatDate(order.created_at)} ·{' '}
-                                {order.items_count}{' '}
-                                {order.items_count === 1 ? 'artigo' : 'artigos'}
+                    <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                                <p className="font-medium text-brand-900 group-hover:underline">
+                                    {order.order_number}
+                                </p>
+                                <p className="mt-1 text-sm text-brand-600">
+                                    {formatDate(order.created_at)} ·{' '}
+                                    {order.items_count}{' '}
+                                    {order.items_count === 1
+                                        ? 'artigo'
+                                        : 'artigos'}
+                                </p>
+                            </div>
+                            <p className="text-lg font-semibold text-brand-900">
+                                {formatMoney(order.total, order.currency)}
                             </p>
                         </div>
-                        <p className="text-lg font-semibold text-brand-900">
-                            {formatMoney(order.total, order.currency)}
-                        </p>
-                    </div>
 
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <OrderStatusBadge
-                            status={order.status}
-                            label={order.status_label}
-                        />
-                        <OrderStatusBadge
-                            status={order.payment_status}
-                            label={order.payment_status_label}
-                        />
-                        {order.has_invoice && (
-                            <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-700">
-                                Fatura disponível
-                            </span>
-                        )}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <OrderStatusBadges order={order} />
+                            {order.has_invoice && (
+                                <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-700">
+                                    Fatura disponível
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </Link>
+            </Link>
+
+            {order.payment_url && (
+                <div className="border-t border-brand-100 px-4 py-3">
+                    <a
+                        href={order.payment_url}
+                        className="inline-flex w-full items-center justify-center rounded-md bg-brand-900 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800"
+                    >
+                        Concluir pagamento
+                    </a>
+                </div>
+            )}
+        </div>
     );
 }

@@ -311,10 +311,6 @@ class CheckoutService
 
     public function customerPaymentUrl(Order $order): ?string
     {
-        if (! $order->stripe_checkout_session_id) {
-            return null;
-        }
-
         if ($order->payment_status !== PaymentStatus::Pending) {
             return null;
         }

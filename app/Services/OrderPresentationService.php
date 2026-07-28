@@ -9,6 +9,10 @@ use App\Support\StorefrontData;
 
 class OrderPresentationService
 {
+    public function __construct(
+        private readonly CheckoutService $checkout,
+    ) {}
+
     /**
      * @return array<string, mixed>
      */
@@ -28,6 +32,7 @@ class OrderPresentationService
             'created_at' => $order->created_at?->toIso8601String(),
             'items_count' => $order->items->count(),
             'has_invoice' => $order->invoice_path !== null,
+            'payment_url' => $this->checkout->customerPaymentUrl($order),
             'preview_images' => $this->previewImages($order),
             'preview_overflow' => max(0, $order->items->count() - 3),
         ];

@@ -51,6 +51,18 @@ export default function OrderShow({
         }
     };
 
+    const remove = () => {
+        if (
+            !confirm(
+                `Eliminar a encomenda ${order.order_number}?\n\nSe já estiver paga, o stock e a promoção serão repostos.`,
+            )
+        ) {
+            return;
+        }
+
+        router.delete(route('admin.orders.destroy', order.id));
+    };
+
     return (
         <AdminLayout title={`Encomenda ${order.order_number}`}>
             <Head title={`Encomenda ${order.order_number}`} />
@@ -226,6 +238,22 @@ export default function OrderShow({
                         </div>
                     )}
                 </aside>
+            </div>
+
+            <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-5">
+                <h2 className="font-medium text-red-900">Zona perigosa</h2>
+                <p className="mt-2 text-sm text-red-800">
+                    Eliminar esta encomenda remove também os artigos e notas
+                    associados. Encomendas pagas repõem o stock e revertem a
+                    utilização da promoção.
+                </p>
+                <button
+                    type="button"
+                    onClick={remove}
+                    className="mt-4 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
+                >
+                    Eliminar encomenda
+                </button>
             </div>
         </AdminLayout>
     );

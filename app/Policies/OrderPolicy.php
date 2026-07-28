@@ -21,4 +21,9 @@ class OrderPolicy
     {
         return $this->view($user, $order) && $order->invoice_path !== null;
     }
+
+    public function delete(User $user, Order $order): bool
+    {
+        return $user->isAdmin();
+    }
 }

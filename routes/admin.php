@@ -90,4 +90,5 @@ Route::middleware(['auth', 'verified', 'admin', 'two-factor'])
         Route::get('/encomendas', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/encomendas/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::patch('/encomendas/{order}/estado', [OrderController::class, 'updateStatus'])->name('orders.status');
+        Route::delete('/encomendas/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
     });

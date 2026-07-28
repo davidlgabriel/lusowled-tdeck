@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Models\Order;
 use App\Services\CheckoutService;
+use App\Services\OrderAdminService;
 use App\Services\StripeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class OrderController extends Controller
     public function __construct(
         private readonly StripeService $stripe,
         private readonly CheckoutService $checkout,
+        private readonly OrderAdminService $orders,
     ) {}
 
     public function index(Request $request): Response
@@ -101,6 +103,17 @@ class OrderController extends Controller
         $order->update($updates);
 
         return Redirect::back()->with('success', 'Estado da encomenda atualizado.');
+    }
+
+    public function destroy(Order $order): RedirectResponse
+    {
+        $this->authorize('delete', $order);
+
+        $orderNumber = $order->order_number;
+        $this->orders->delete($order);
+
+        return Redirect::route('admin.orders.index')
+            ->with('success', "Encomenda {$orderNumber} eliminada.");
     }
 
     /**

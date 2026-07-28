@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\CheckoutService;
 use App\Services\OrderPresentationService;
 use App\Support\StorefrontData;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class OrderController extends Controller
 {
     public function __construct(
         private readonly OrderPresentationService $orders,
+        private readonly CheckoutService $checkout,
     ) {}
 
     public function index(Request $request): Response
@@ -91,6 +93,7 @@ class OrderController extends Controller
                 ]),
                 'has_invoice' => $order->invoice_path !== null,
                 'invoice_number' => $order->invoice_number,
+                'payment_url' => $this->checkout->customerPaymentUrl($order),
             ],
         ]);
     }

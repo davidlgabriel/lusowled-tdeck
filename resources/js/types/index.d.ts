@@ -115,6 +115,7 @@ export interface OrderSummary {
     has_invoice?: boolean;
     preview_images?: string[];
     preview_overflow?: number;
+    payment_url?: string | null;
 }
 
 export interface NavCategory {

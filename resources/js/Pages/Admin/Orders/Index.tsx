@@ -24,6 +24,18 @@ export default function OrdersIndex({
     filters: { q: string; status: string };
     statuses: { value: string; label: string }[];
 }) {
+    const remove = (order: { id: number; order_number: string }) => {
+        if (
+            !confirm(
+                `Eliminar a encomenda ${order.order_number}?\n\nSe já estiver paga, o stock e a promoção serão repostos.`,
+            )
+        ) {
+            return;
+        }
+
+        router.delete(route('admin.orders.destroy', order.id));
+    };
+
     return (
         <AdminLayout title="Encomendas">
             <Head title="Admin — Encomendas" />
@@ -71,6 +83,7 @@ export default function OrdersIndex({
                             <th className="px-5 py-3">Estado</th>
                             <th className="px-5 py-3">Pagamento</th>
                             <th className="px-5 py-3">Total</th>
+                            <th className="px-5 py-3" />
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#f0f0ec]">
@@ -101,6 +114,15 @@ export default function OrdersIndex({
                                 </td>
                                 <td className="px-5 py-4 font-medium">
                                     {formatMoney(o.total, o.currency)}
+                                </td>
+                                <td className="px-5 py-4 text-right">
+                                    <button
+                                        type="button"
+                                        onClick={() => remove(o)}
+                                        className="text-red-600 underline"
+                                    >
+                                        Eliminar
+                                    </button>
                                 </td>
                             </tr>
                         ))}

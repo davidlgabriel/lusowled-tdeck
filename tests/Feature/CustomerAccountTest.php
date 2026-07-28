@@ -110,6 +110,27 @@ class CustomerAccountTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_customer_sees_payment_link_for_pending_order(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $customer = User::query()->where('email', 'cliente@lusoweld.pt')->first();
+        $order = Order::factory()->create([
+            'user_id' => $customer->id,
+            'payment_status' => 'pending',
+            'stripe_checkout_session_id' => null,
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('account.orders.show', $order))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Account/Orders/Show')
+                ->where('order.payment_url', route('checkout.payment', [
+                    'order' => $order->id,
+                ], absolute: true)));
+    }
+
     public function test_login_redirects_to_account_area(): void
     {
         $user = User::factory()->customer()->create();

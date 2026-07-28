@@ -138,4 +138,64 @@ class AdminTest extends TestCase
                     'token' => $pendingOrder->guest_token,
                 ], absolute: true)));
     }
+
+    public function test_admin_can_delete_pending_order(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
+        $order = \App\Models\Order::factory()->create();
+
+        $this->actingAs($admin)
+            ->delete(route('admin.orders.destroy', $order))
+            ->assertRedirect(route('admin.orders.index'));
+
+        $this->assertDatabaseMissing('orders', ['id' => $order->id]);
+    }
+
+    public function test_admin_delete_paid_order_restores_stock_and_promotion_usage(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
+        $product = \App\Models\Product::query()->active()->first();
+        $this->assertNotNull($product);
+
+        $promotion = \App\Models\Promotion::query()->first();
+        $this->assertNotNull($promotion);
+
+        $product->update(['stock_quantity' => 8]);
+        $promotion->update(['usage_count' => 3]);
+
+        $order = \App\Models\Order::factory()->paid()->create([
+            'promotion_id' => $promotion->id,
+        ]);
+
+        \App\Models\OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'product_variant_id' => null,
+            'quantity' => 2,
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.orders.destroy', $order))
+            ->assertRedirect(route('admin.orders.index'));
+
+        $this->assertDatabaseMissing('orders', ['id' => $order->id]);
+        $this->assertSame(10, $product->fresh()->stock_quantity);
+        $this->assertSame(2, $promotion->fresh()->usage_count);
+    }
+
+    public function test_customer_cannot_delete_order(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $customer = User::query()->where('email', 'cliente@lusoweld.pt')->first();
+        $order = \App\Models\Order::factory()->create(['user_id' => $customer->id]);
+
+        $this->actingAs($customer)
+            ->delete(route('admin.orders.destroy', $order))
+            ->assertForbidden();
+    }
 }

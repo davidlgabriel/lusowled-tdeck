@@ -1,4 +1,4 @@
-import OrderStatusBadge from '@/Components/OrderStatusBadge';
+import OrderStatusBadges from '@/Components/Account/OrderStatusBadges';
 import AccountLayout from '@/Layouts/AccountLayout';
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
@@ -54,8 +54,11 @@ export default function OrderShow({
         }[];
         has_invoice: boolean;
         invoice_number?: string;
+        payment_url?: string | null;
     };
 }>) {
+    const isPaid = order.payment_status === 'paid';
+
     return (
         <AccountLayout>
             <Head title={`Encomenda ${order.order_number}`} />
@@ -79,14 +82,7 @@ export default function OrderShow({
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <OrderStatusBadge
-                        status={order.status}
-                        label={order.status_label}
-                    />
-                    <OrderStatusBadge
-                        status={order.payment_status}
-                        label={order.payment_status_label}
-                    />
+                    <OrderStatusBadges order={order} />
                 </div>
             </div>
 
@@ -215,13 +211,22 @@ export default function OrderShow({
                                 </dd>
                             </div>
                             <div className="flex justify-between border-t border-brand-200 pt-2 text-base font-medium">
-                                <dt>Total pago</dt>
+                                <dt>{isPaid ? 'Total pago' : 'Total'}</dt>
                                 <dd>
                                     {formatMoney(order.total, order.currency)}
                                 </dd>
                             </div>
                         </dl>
                     </section>
+
+                    {order.payment_url && (
+                        <a
+                            href={order.payment_url}
+                            className="btn-primary w-full text-center"
+                        >
+                            Concluir pagamento
+                        </a>
+                    )}
 
                     {order.has_invoice && (
                         <a
