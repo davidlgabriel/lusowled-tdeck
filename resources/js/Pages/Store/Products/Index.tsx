@@ -3,7 +3,7 @@ import Pagination from '@/Components/Store/Pagination';
 import ProductCard from '@/Components/Store/ProductCard';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 
 export default function ProductsIndex({
@@ -25,6 +25,7 @@ export default function ProductsIndex({
         ordenar: string;
     };
 }>) {
+    const { store } = usePage<PageProps>().props;
     const [form, setForm] = useState(filters);
     const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -115,57 +116,61 @@ export default function ProductsIndex({
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs font-medium text-brand-500">
-                                        Min. €
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={form.preco_min ?? ''}
-                                        onChange={(e) =>
-                                            setForm({
-                                                ...form,
-                                                preco_min: e.target.value,
-                                            })
-                                        }
-                                        className="input-field-soft mt-1.5"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-medium text-brand-500">
-                                        Máx. €
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={form.preco_max ?? ''}
-                                        onChange={(e) =>
-                                            setForm({
-                                                ...form,
-                                                preco_max: e.target.value,
-                                            })
-                                        }
-                                        className="input-field-soft mt-1.5"
-                                    />
-                                </div>
-                            </div>
+                            {store.sales_enabled && (
+                                <>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-xs font-medium text-brand-500">
+                                                Min. €
+                                            </label>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                value={form.preco_min ?? ''}
+                                                onChange={(e) =>
+                                                    setForm({
+                                                        ...form,
+                                                        preco_min: e.target.value,
+                                                    })
+                                                }
+                                                className="input-field-soft mt-1.5"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-medium text-brand-500">
+                                                Máx. €
+                                            </label>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                value={form.preco_max ?? ''}
+                                                onChange={(e) =>
+                                                    setForm({
+                                                        ...form,
+                                                        preco_max: e.target.value,
+                                                    })
+                                                }
+                                                className="input-field-soft mt-1.5"
+                                            />
+                                        </div>
+                                    </div>
 
-                            <label className="flex items-center gap-2.5 text-sm text-brand-700">
-                                <input
-                                    type="checkbox"
-                                    checked={form.promocao}
-                                    onChange={(e) =>
-                                        setForm({
-                                            ...form,
-                                            promocao: e.target.checked,
-                                        })
-                                    }
-                                    className="h-4 w-4 rounded border-brand-300 text-brand-900 focus:ring-brand-400/40"
-                                />
-                                Em promoção
-                            </label>
+                                    <label className="flex items-center gap-2.5 text-sm text-brand-700">
+                                        <input
+                                            type="checkbox"
+                                            checked={form.promocao}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    promocao: e.target.checked,
+                                                })
+                                            }
+                                            className="h-4 w-4 rounded border-brand-300 text-brand-900 focus:ring-brand-400/40"
+                                        />
+                                        Em promoção
+                                    </label>
+                                </>
+                            )}
 
                             <div>
                                 <label className="text-xs font-medium text-brand-500">
@@ -182,8 +187,16 @@ export default function ProductsIndex({
                                     className="input-field-soft mt-1.5"
                                 >
                                     <option value="recentes">Mais recentes</option>
-                                    <option value="preco_asc">Preço: menor</option>
-                                    <option value="preco_desc">Preço: maior</option>
+                                    {store.sales_enabled && (
+                                        <>
+                                            <option value="preco_asc">
+                                                Preço: menor
+                                            </option>
+                                            <option value="preco_desc">
+                                                Preço: maior
+                                            </option>
+                                        </>
+                                    )}
                                     <option value="nome">Nome A–Z</option>
                                 </select>
                             </div>

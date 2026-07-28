@@ -10,7 +10,13 @@ export default function ProductPrice({
 }: {
     product: Pick<
         StoreProduct,
-        'current_price' | 'base_price' | 'is_on_sale' | 'sale_price'
+        | 'current_price'
+        | 'base_price'
+        | 'is_on_sale'
+        | 'sale_price'
+        | 'price_from'
+        | 'price_to'
+        | 'has_variable_pricing'
     >;
     currency?: string;
     size?: 'sm' | 'md' | 'lg';
@@ -24,14 +30,35 @@ export default function ProductPrice({
               ? 'text-sm'
               : 'text-base';
 
-    const grossPrice = product.current_price * (1 + vatRate / 100);
+    if (!store.sales_enabled || product.current_price === null) {
+        return null;
+    }
+
+    const displayPrice =
+        product.has_variable_pricing &&
+        product.price_from !== null &&
+        product.price_from !== undefined
+            ? product.price_from
+            : product.current_price;
+
+    const grossPrice = displayPrice * (1 + vatRate / 100);
+    const showFromLabel =
+        product.has_variable_pricing &&
+        product.price_from !== null &&
+        product.price_to !== null &&
+        product.price_from !== product.price_to;
 
     return (
         <div className={`flex flex-wrap items-baseline gap-x-2 gap-y-0.5 ${sizeClass}`}>
+            {showFromLabel && (
+                <span className="text-sm font-normal text-brand-500">desde</span>
+            )}
             <span className="font-medium text-brand-900">
-                {formatMoney(product.current_price, currency)}
+                {formatMoney(displayPrice, currency)}
             </span>
-            {product.is_on_sale && product.sale_price !== null && (
+            {product.is_on_sale &&
+                product.sale_price !== null &&
+                product.base_price !== null && (
                 <span className="text-brand-400 line-through">
                     {formatMoney(product.base_price, currency)}
                 </span>

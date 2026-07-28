@@ -3,11 +3,12 @@
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContentPageController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GuideController;
 use App\Http\Controllers\Admin\NavigationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StockController;
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified', 'admin', 'two-factor'])
     ->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/guia', [GuideController::class, 'index'])->name('guide.index');
 
         Route::get('/produtos', [ProductController::class, 'index'])->name('products.index');
         Route::get('/produtos/criar', [ProductController::class, 'create'])->name('products.create');
@@ -38,6 +40,9 @@ Route::middleware(['auth', 'verified', 'admin', 'two-factor'])
         Route::post('/produtos/{product}/imagens', [ProductController::class, 'storeImage'])->name('products.images.store');
         Route::delete('/produtos/{product}/imagens/{image}', [ProductController::class, 'destroyImage'])->name('products.images.destroy');
         Route::patch('/produtos/{product}/imagens/{image}/principal', [ProductController::class, 'setPrimaryImage'])->name('products.images.primary');
+        Route::post('/produtos/{product}/variantes', [ProductVariantController::class, 'store'])->name('products.variants.store');
+        Route::patch('/produtos/{product}/variantes/{variant}', [ProductVariantController::class, 'update'])->name('products.variants.update');
+        Route::delete('/produtos/{product}/variantes/{variant}', [ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
 
         Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
         Route::get('/categorias/criar', [CategoryController::class, 'create'])->name('categories.create');

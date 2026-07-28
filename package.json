@@ -28,6 +28,9 @@
     "dependencies": {
         "@stripe/react-stripe-js": "^6.7.0",
         "@stripe/stripe-js": "^9.10.0",
+        "@tiptap/extension-link": "^3.29.2",
+        "@tiptap/react": "^3.29.2",
+        "@tiptap/starter-kit": "^3.29.2",
         "axios": "^1.18.1"
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\SettingsService;
@@ -119,5 +120,80 @@ class StorefrontTest extends TestCase
         );
 
         app(SettingsService::class)->clearCache();
+    }
+
+    public function test_product_with_variants_requires_variant_in_cart(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $product = Product::factory()->create([
+            'stock_quantity' => 0,
+            'base_price' => 30,
+        ]);
+
+        ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'name' => 'Cinza — Pack 5 m²',
+            'sku' => 'TEST-VAR-GRAY',
+            'options' => ['cor' => 'Cinza', 'pack' => '5 m²'],
+            'price' => 35,
+            'stock_quantity' => 5,
+        ]);
+
+        $this->post(route('cart.store'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ])->assertSessionHasErrors('product_variant_id');
+
+        $variant = $product->variants()->first();
+
+        $this->post(route('cart.store'), [
+            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
+            'quantity' => 1,
+        ])->assertRedirect();
+
+        $this->get(route('cart.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Store/Cart/Index')
+                ->where('cart.item_count', 1));
+    }
+
+    public function test_product_page_exposes_variant_prices(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $product = Product::factory()->create([
+            'status' => 'active',
+            'stock_quantity' => 0,
+            'base_price' => 25,
+        ]);
+
+        ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'name' => 'Castanho — Pack 5 m²',
+            'options' => ['cor' => 'Castanho', 'pack' => '5 m²'],
+            'price' => 40,
+            'stock_quantity' => 3,
+        ]);
+
+        ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'name' => 'Castanho — Pack 10 m²',
+            'options' => ['cor' => 'Castanho', 'pack' => '10 m²'],
+            'price' => 75,
+            'stock_quantity' => 2,
+        ]);
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Store/Products/Show')
+                ->where('product.has_variants', true)
+                ->where('product.price_from', 40)
+                ->where('product.price_to', 75)
+                ->where('product.has_variable_pricing', true)
+                ->has('product.variants', 2));
     }
 }

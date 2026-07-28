@@ -72,11 +72,24 @@ class CartService
     public function addItem(Cart $cart, Product $product, ?int $variantId, int $quantity): CartItem
     {
         $product->loadMissing('variants');
+        $activeVariants = $product->variants->where('is_active', true);
         $variant = $variantId ? $product->variants->firstWhere('id', $variantId) : null;
+
+        if ($activeVariants->isNotEmpty() && ! $variant) {
+            throw ValidationException::withMessages([
+                'product_variant_id' => 'Selecione uma variante (cor, pack, etc.).',
+            ]);
+        }
 
         if ($variantId && ! $variant) {
             throw ValidationException::withMessages([
                 'product_variant_id' => 'Variante inválida.',
+            ]);
+        }
+
+        if ($variant && ! $variant->is_active) {
+            throw ValidationException::withMessages([
+                'product_variant_id' => 'Esta variante não está disponível.',
             ]);
         }
 

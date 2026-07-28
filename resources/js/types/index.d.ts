@@ -62,9 +62,9 @@ export interface StoreProduct {
     name: string;
     slug: string;
     sku: string;
-    base_price: number;
+    base_price: number | null;
     sale_price: number | null;
-    current_price: number;
+    current_price: number | null;
     is_on_sale: boolean;
     is_featured: boolean;
     is_in_stock: boolean;
@@ -72,6 +72,9 @@ export interface StoreProduct {
     image_url: string | null;
     categories: { id: number; name: string; slug: string }[];
     has_variants?: boolean;
+    price_from?: number | null;
+    price_to?: number | null;
+    has_variable_pricing?: boolean;
     description?: string;
     images?: { id: number; url: string | null; alt: string; is_primary: boolean }[];
     variants?: {
@@ -79,7 +82,8 @@ export interface StoreProduct {
         name: string;
         sku: string;
         options: Record<string, string>;
-        current_price: number;
+        price?: number | null;
+        current_price: number | null;
         stock_quantity: number;
         is_in_stock: boolean;
     }[];

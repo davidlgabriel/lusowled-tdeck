@@ -31,8 +31,8 @@ export default function PagesIndex({
             <Head title="Admin — Páginas" />
 
             <p className="mb-6 text-sm text-brand-500">
-                Crie páginas em texto simples ou HTML para o footer, FAQs,
-                termos legais, etc.
+                Crie páginas com o editor visual ou em texto simples para o
+                footer, FAQs, termos legais, etc.
             </p>
 
             <div className="overflow-hidden rounded-lg border border-brand-200 bg-white shadow-card">

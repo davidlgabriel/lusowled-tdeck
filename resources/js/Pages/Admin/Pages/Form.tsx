@@ -1,6 +1,7 @@
+import RichTextEditor from '@/Components/Admin/RichTextEditor';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import { FormEvent, useState } from 'react';
 
 export default function PageForm({
     page,
@@ -22,19 +23,20 @@ export default function PageForm({
     contentFormats: { value: string; label: string }[];
 }) {
     const isEdit = !!page;
+    const [showHtmlSource, setShowHtmlSource] = useState(false);
 
     const { data, setData, post, patch, processing, errors } = useForm({
         title: page?.title ?? '',
         slug: page?.slug ?? '',
         content: page?.content ?? '',
-        content_format: page?.content_format ?? 'plain',
+        content_format: page?.content_format ?? 'html',
         footer_section: page?.footer_section ?? '',
         show_in_footer: page?.show_in_footer ?? true,
         sort_order: page?.sort_order ?? 0,
         is_published: page?.is_published ?? true,
     });
 
-    const isHtml = data.content_format === 'html';
+    const isVisual = data.content_format === 'html';
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -76,9 +78,12 @@ export default function PageForm({
                                     <button
                                         key={format.value}
                                         type="button"
-                                        onClick={() =>
-                                            setData('content_format', format.value)
-                                        }
+                                        onClick={() => {
+                                            setData('content_format', format.value);
+                                            if (format.value === 'html') {
+                                                setShowHtmlSource(false);
+                                            }
+                                        }}
                                         className={`rounded px-3 py-1.5 text-xs font-medium transition ${
                                             data.content_format === format.value
                                                 ? 'bg-brand-900 text-white'
@@ -92,24 +97,32 @@ export default function PageForm({
                         </div>
 
                         <p className="mt-2 text-xs text-brand-500">
-                            {isHtml
-                                ? 'Modo HTML: pode usar etiquetas como <p>, <h2>, <ul>, <a href="">, etc.'
-                                : 'Modo texto simples: escreva normalmente. As quebras de linha são preservadas — não precisa de HTML.'}
+                            {isVisual
+                                ? 'Use a barra de ferramentas para formatar texto, títulos, listas e links — não precisa de saber HTML.'
+                                : 'Modo texto simples: escreva normalmente. As quebras de linha são preservadas.'}
                         </p>
 
-                        <textarea
-                            value={data.content}
-                            onChange={(e) => setData('content', e.target.value)}
-                            rows={18}
-                            placeholder={
-                                isHtml
-                                    ? '<p>Escreva o conteúdo em HTML...</p>'
-                                    : 'Escreva o texto aqui...\n\nPode usar parágrafos separados por linhas em branco.'
-                            }
-                            className={`input-field mt-2 text-sm ${
-                                isHtml ? 'font-mono' : ''
-                            }`}
-                        />
+                        <div className="mt-3">
+                            {isVisual ? (
+                                <RichTextEditor
+                                    value={data.content}
+                                    onChange={(html) => setData('content', html)}
+                                />
+                            ) : (
+                                <textarea
+                                    value={data.content}
+                                    onChange={(e) =>
+                                        setData('content', e.target.value)
+                                    }
+                                    rows={18}
+                                    placeholder="Escreva o texto aqui...
+
+Pode usar parágrafos separados por linhas em branco."
+                                    className="input-field text-sm"
+                                />
+                            )}
+                        </div>
+
                         {errors.content && (
                             <p className="mt-1 text-sm text-red-600">
                                 {errors.content}
@@ -121,23 +134,39 @@ export default function PageForm({
                             </p>
                         )}
 
-                        {data.content && (
+                        {isVisual && (
+                            <div className="mt-4 border-t border-brand-200 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowHtmlSource((v) => !v)}
+                                    className="text-xs font-medium text-brand-600 underline"
+                                >
+                                    {showHtmlSource
+                                        ? 'Ocultar código HTML'
+                                        : 'Editar código HTML (avançado)'}
+                                </button>
+                                {showHtmlSource && (
+                                    <textarea
+                                        value={data.content}
+                                        onChange={(e) =>
+                                            setData('content', e.target.value)
+                                        }
+                                        rows={10}
+                                        className="input-field mt-2 font-mono text-xs"
+                                        spellCheck={false}
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {!isVisual && data.content && (
                             <div className="mt-4 border-t border-brand-200 pt-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-brand-500">
                                     Pré-visualização
                                 </p>
-                                {isHtml ? (
-                                    <article
-                                        className="prose prose-sm mt-3 max-w-none text-brand-700 prose-headings:font-semibold prose-headings:text-brand-900 prose-a:text-brand-900 prose-a:underline"
-                                        dangerouslySetInnerHTML={{
-                                            __html: data.content,
-                                        }}
-                                    />
-                                ) : (
-                                    <article className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-brand-700">
-                                        {data.content}
-                                    </article>
-                                )}
+                                <article className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-brand-700">
+                                    {data.content}
+                                </article>
                             </div>
                         )}
                     </div>

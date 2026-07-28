@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,7 +69,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): Response
     {
-        $product->load(['categories', 'images']);
+        $product->load(['categories', 'images', 'variants']);
 
         return Inertia::render('Admin/Products/Form', [
             'product' => $this->formatProduct($product),
@@ -180,6 +181,17 @@ class ProductController extends Controller
                 'id' => $img->id,
                 'url' => $this->settings->assetUrl($img->path),
                 'is_primary' => $img->is_primary,
+            ]),
+            'variants' => $product->variants->map(fn (ProductVariant $variant) => [
+                'id' => $variant->id,
+                'name' => $variant->name,
+                'sku' => $variant->sku,
+                'option_cor' => $variant->options['cor'] ?? '',
+                'option_pack' => $variant->options['pack'] ?? '',
+                'price' => $variant->price !== null ? (float) $variant->price : '',
+                'stock_quantity' => $variant->stock_quantity,
+                'sort_order' => $variant->sort_order,
+                'is_active' => $variant->is_active,
             ]),
         ];
     }

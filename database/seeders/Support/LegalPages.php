@@ -7,7 +7,7 @@ class LegalPages
     private const COMPANY = 'True Solutions';
     private const BRAND = 'T-DECK by True Solutions';
     private const SITE = 'loja T-DECK';
-    private const EMAIL = 'loja@tdeck.pt';
+    private const EMAIL = 'loja.tdeck@lusoweld.com';
     private const NIF = '500000000';
     private const COUNTRY = 'Portugal';
 

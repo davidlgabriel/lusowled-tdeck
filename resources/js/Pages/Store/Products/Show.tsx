@@ -3,6 +3,7 @@ import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
 import ProductCard from '@/Components/Store/ProductCard';
 import ProductImage from '@/Components/Store/ProductImage';
 import ProductPrice from '@/Components/Store/ProductPrice';
+import ProductVariantSelector from '@/Components/Store/ProductVariantSelector';
 import SectionHeading from '@/Components/Store/SectionHeading';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { PageProps, StoreProduct } from '@/types';
@@ -42,9 +43,20 @@ export default function ProductShow({
     const displayPrice = selectedVariant
         ? {
               current_price: selectedVariant.current_price,
-              base_price: product.base_price,
+              base_price:
+                  selectedVariant.price !== null && selectedVariant.price !== undefined
+                      ? selectedVariant.price
+                      : product.base_price,
               sale_price: product.sale_price,
-              is_on_sale: selectedVariant.current_price < product.base_price,
+              is_on_sale:
+                  selectedVariant.current_price !== null &&
+                  selectedVariant.price !== null &&
+                  selectedVariant.price !== undefined &&
+                  product.sale_price !== null &&
+                  selectedVariant.current_price < selectedVariant.price,
+              price_from: null,
+              price_to: null,
+              has_variable_pricing: false,
           }
         : product;
 
@@ -155,36 +167,12 @@ export default function ProductShow({
 
                         <form onSubmit={submit} className="mt-6 space-y-5">
                             {product.has_variants && product.variants && (
-                                <div>
-                                    <label className="text-sm font-medium text-brand-800">
-                                        Variante
-                                    </label>
-                                    <select
-                                        value={variantId ?? ''}
-                                        onChange={(e) =>
-                                            setVariantId(
-                                                e.target.value
-                                                    ? Number(e.target.value)
-                                                    : null,
-                                            )
-                                        }
-                                        className="input-field mt-1.5"
-                                        required
-                                    >
-                                        {product.variants.map((variant) => (
-                                            <option
-                                                key={variant.id}
-                                                value={variant.id}
-                                                disabled={!variant.is_in_stock}
-                                            >
-                                                {variant.name}
-                                                {!variant.is_in_stock
-                                                    ? ' (esgotado)'
-                                                    : ''}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <ProductVariantSelector
+                                    variants={product.variants}
+                                    selectedId={variantId}
+                                    onSelect={setVariantId}
+                                    showPrices={store.sales_enabled}
+                                />
                             )}
 
                             {store.sales_enabled ? (

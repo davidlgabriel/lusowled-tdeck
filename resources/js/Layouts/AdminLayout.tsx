@@ -6,6 +6,7 @@ import { PropsWithChildren } from 'react';
 
 const nav = [
     { href: 'admin.dashboard', label: 'Dashboard' },
+    { href: 'admin.guide.index', label: 'Guia' },
     { href: 'admin.products.index', label: 'Produtos' },
     { href: 'admin.categories.index', label: 'Categorias' },
     { href: 'admin.pages.index', label: 'Páginas' },

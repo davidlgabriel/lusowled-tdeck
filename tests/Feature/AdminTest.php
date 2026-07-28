@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -197,5 +198,81 @@ class AdminTest extends TestCase
         $this->actingAs($customer)
             ->delete(route('admin.orders.destroy', $order))
             ->assertForbidden();
+    }
+
+    public function test_admin_can_access_guide(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
+
+        $this->actingAs($admin)
+            ->get(route('admin.guide.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('Admin/Guide/Index'));
+
+        $customer = User::query()->where('email', 'cliente@lusoweld.pt')->first();
+
+        $this->actingAs($customer)
+            ->get(route('admin.guide.index'))
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_manage_product_variants(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
+        $product = Product::query()->active()->first();
+        $this->assertNotNull($product);
+
+        $this->actingAs($admin)
+            ->post(route('admin.products.variants.store', $product), [
+                'name' => 'Castanho — Pack 5 m²',
+                'sku' => 'VAR-CAST-5',
+                'option_cor' => 'Castanho',
+                'option_pack' => '5 m²',
+                'price' => 45.50,
+                'stock_quantity' => 12,
+                'sort_order' => 0,
+                'is_active' => true,
+            ])
+            ->assertRedirect();
+
+        $variant = $product->variants()->where('sku', 'VAR-CAST-5')->first();
+        $this->assertNotNull($variant);
+        $this->assertSame('Castanho', $variant->options['cor']);
+        $this->assertSame('5 m²', $variant->options['pack']);
+        $this->assertSame('45.50', $variant->price);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.products.variants.update', [$product, $variant]), [
+                'name' => 'Castanho — Pack 10 m²',
+                'sku' => 'VAR-CAST-5',
+                'option_cor' => 'Castanho',
+                'option_pack' => '10 m²',
+                'price' => 82,
+                'stock_quantity' => 8,
+                'sort_order' => 1,
+                'is_active' => true,
+            ])
+            ->assertRedirect();
+
+        $variant->refresh();
+        $this->assertSame('10 m²', $variant->options['pack']);
+        $this->assertSame('82.00', $variant->price);
+
+        $this->actingAs($admin)
+            ->get(route('admin.products.edit', $product))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Admin/Products/Form')
+                ->has('product.variants', 1));
+
+        $this->actingAs($admin)
+            ->delete(route('admin.products.variants.destroy', [$product, $variant]))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('product_variants', ['id' => $variant->id]);
     }
 }

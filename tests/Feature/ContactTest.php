@@ -41,7 +41,7 @@ class ContactTest extends TestCase
             ->assertSessionHas('success');
 
         Mail::assertSent(ContactMessageMail::class, function (ContactMessageMail $mail) {
-            return $mail->hasTo('loja@tdeck.pt')
+            return $mail->hasTo('loja.tdeck@lusoweld.com')
                 && $mail->contact['name'] === 'João Silva'
                 && $mail->contact['email'] === 'joao@example.com';
         });

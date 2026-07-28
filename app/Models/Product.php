@@ -95,6 +95,37 @@ class Product extends Model
 
     public function isInStock(): bool
     {
+        if ($this->relationLoaded('variants')) {
+            $activeVariants = $this->variants->where('is_active', true);
+
+            if ($activeVariants->isNotEmpty()) {
+                return $activeVariants->contains(fn (ProductVariant $variant) => $variant->isInStock());
+            }
+        }
+
         return $this->stock_quantity > 0;
+    }
+
+    /**
+     * @return array{min: float, max: float}|null
+     */
+    public function variantPriceRange(): ?array
+    {
+        if (! $this->relationLoaded('variants')) {
+            $this->load(['variants' => fn ($q) => $q->where('is_active', true)]);
+        }
+
+        $activeVariants = $this->variants->where('is_active', true);
+
+        if ($activeVariants->isEmpty()) {
+            return null;
+        }
+
+        $prices = $activeVariants->map(fn (ProductVariant $variant) => $variant->currentPrice());
+
+        return [
+            'min' => (float) $prices->min(),
+            'max' => (float) $prices->max(),
+        ];
     }
 }

@@ -11,7 +11,7 @@ enum ContentFormat: string
     {
         return match ($this) {
             self::Plain => 'Texto simples',
-            self::Html => 'HTML',
+            self::Html => 'Editor visual',
         };
     }
 }

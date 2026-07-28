@@ -1,4 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import ProductVariantsSection, {
+    ProductVariantForm,
+} from '@/Components/Admin/ProductVariantsSection';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEvent, useRef } from 'react';
 
@@ -16,6 +19,7 @@ type ProductForm = {
     is_featured: boolean;
     category_ids: number[];
     images?: { id: number; url: string | null; is_primary: boolean }[];
+    variants?: ProductVariantForm[];
 };
 
 export default function ProductFormPage({
@@ -205,6 +209,13 @@ export default function ProductFormPage({
                                 className="mt-4 text-sm"
                             />
                         </section>
+                    )}
+
+                    {isEdit && product?.id && (
+                        <ProductVariantsSection
+                            productId={product.id}
+                            variants={product.variants ?? []}
+                        />
                     )}
                 </div>
 

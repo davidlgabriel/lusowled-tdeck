@@ -2,10 +2,12 @@ import ProductCardActions from '@/Components/Store/ProductCardActions';
 import ProductImage from '@/Components/Store/ProductImage';
 import ProductPrice from '@/Components/Store/ProductPrice';
 import SaleBadge from '@/Components/Store/SaleBadge';
-import { StoreProduct } from '@/types';
-import { Link } from '@inertiajs/react';
+import { PageProps, StoreProduct } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function ProductCard({ product }: { product: StoreProduct }) {
+    const { store } = usePage<PageProps>().props;
+
     return (
         <article className="group flex h-full flex-col">
             <Link
@@ -16,7 +18,10 @@ export default function ProductCard({ product }: { product: StoreProduct }) {
                     product={product}
                     className="h-full w-full transition duration-500 ease-out group-hover:scale-105"
                 />
-                {product.is_on_sale && product.sale_price !== null && (
+                {store.sales_enabled &&
+                    product.is_on_sale &&
+                    product.sale_price !== null &&
+                    product.base_price !== null && (
                     <SaleBadge
                         basePrice={product.base_price}
                         salePrice={product.sale_price}
