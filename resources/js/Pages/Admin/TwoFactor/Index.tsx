@@ -1,6 +1,7 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import UpdatePasswordForm from '@/Components/UpdatePasswordForm';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
@@ -37,12 +38,25 @@ export default function TwoFactorIndex({
     };
 
     return (
-        <AdminLayout title="Segurança — Autenticação de dois fatores">
+        <AdminLayout title="Segurança">
             <Head title="Admin — Segurança" />
 
-            {enabled ? (
-                <div className="max-w-2xl space-y-6">
-                    <div className="rounded-lg border border-green-200 bg-green-50 p-5">
+            <div className="max-w-4xl space-y-10">
+                <UpdatePasswordForm />
+
+                <section className="border-t border-brand-200 pt-10">
+                    <h2 className="font-display text-lg font-semibold text-brand-900">
+                        Autenticação de dois fatores
+                    </h2>
+                    <p className="mt-1 text-sm text-brand-600">
+                        Proteja o acesso à área de administração com um código
+                        temporário no telemóvel.
+                    </p>
+
+                    <div className="mt-6">
+                        {enabled ? (
+                            <div className="max-w-2xl space-y-6">
+                                <div className="rounded-lg border border-green-200 bg-green-50 p-5">
                         <p className="font-medium text-green-900">
                             Autenticação de dois fatores ativa
                         </p>
@@ -160,17 +174,11 @@ export default function TwoFactorIndex({
                             </div>
                         </form>
                     )}
-                </div>
-            ) : (
-                <div className="grid max-w-4xl gap-8 lg:grid-cols-2">
-                    <div className="space-y-4">
-                        <p className="text-sm text-brand-600">
-                            Proteja o acesso à área de administração com um
-                            código temporário gerado pela aplicação
-                            autenticadora no seu telemóvel.
-                        </p>
-
-                        <ol className="list-decimal space-y-2 pl-5 text-sm text-brand-700">
+                            </div>
+                        ) : (
+                            <div className="grid max-w-4xl gap-8 lg:grid-cols-2">
+                                <div className="space-y-4">
+                                    <ol className="list-decimal space-y-2 pl-5 text-sm text-brand-700">
                             <li>
                                 Instale uma aplicação como Google Authenticator
                                 ou Authy no telemóvel.
@@ -240,7 +248,10 @@ export default function TwoFactorIndex({
                         </form>
                     </div>
                 </div>
-            )}
+                        )}
+                    </div>
+                </section>
+            </div>
         </AdminLayout>
     );
 }

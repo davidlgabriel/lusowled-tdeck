@@ -1,6 +1,7 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import UpdatePasswordForm from '@/Components/UpdatePasswordForm';
 import AccountLayout from '@/Layouts/AccountLayout';
 import { PageProps } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -121,6 +122,8 @@ export default function Profile({
                     )}
                 </div>
             </form>
+
+            <UpdatePasswordForm className="mt-8" />
         </AccountLayout>
     );
 }
