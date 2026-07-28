@@ -49,7 +49,7 @@ class CheckoutTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->firstOrFail();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->firstOrFail();
         $product = Product::query()->active()->where('stock_quantity', '>', 0)->firstOrFail();
         $idempotencyKey = (string) Str::uuid();
 
@@ -93,6 +93,51 @@ class CheckoutTest extends TestCase
 
         $existingOrder->refresh();
         $this->assertSame('cs_test_mock', $existingOrder->stripe_checkout_session_id);
+    }
+
+    public function test_payment_page_recreates_stripe_session_when_client_secret_is_missing(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $admin = User::query()->where('email', 'info@lusoweld.com')->firstOrFail();
+
+        $order = Order::factory()->create([
+            'user_id' => $admin->id,
+            'payment_status' => PaymentStatus::Pending,
+            'stripe_checkout_session_id' => 'cs_test_expired',
+            'billing_email' => $admin->email,
+        ]);
+
+        $this->mock(StripeService::class, function ($mock): void {
+            $mock->shouldReceive('publishableKey')->andReturn('pk_test');
+            $mock->shouldReceive('paymentMethodTypes')->andReturn(['card']);
+            $mock->shouldReceive('retrieveCheckoutSession')
+                ->once()
+                ->with('cs_test_expired')
+                ->andReturn(Session::constructFrom([
+                    'id' => 'cs_test_expired',
+                    'client_secret' => null,
+                    'status' => 'expired',
+                ]));
+            $mock->shouldReceive('createCheckoutSession')
+                ->once()
+                ->andReturn(Session::constructFrom([
+                    'id' => 'cs_test_new',
+                    'client_secret' => 'cs_test_new_secret',
+                    'status' => 'open',
+                ]));
+        });
+
+        $this->actingAs($admin)
+            ->withSession(['checkout_order_id' => $order->id])
+            ->get(route('checkout.payment', $order))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Store/Checkout/Payment')
+                ->where('clientSecret', 'cs_test_new_secret'));
+
+        $order->refresh();
+        $this->assertSame('cs_test_new', $order->stripe_checkout_session_id);
     }
 
     /**

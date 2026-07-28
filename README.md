@@ -64,7 +64,7 @@ Estes valores são partilhados automaticamente com o frontend via Inertia (`useP
 
 | Perfil | Email | Password |
 |--------|-------|----------|
-| Admin | `admin@lusoweld.pt` | `password` |
+| Admin | `info@lusoweld.com` | `password` |
 | Cliente | `cliente@lusoweld.pt` | `password` |
 
 ## Modelo de dados (Fase 1)

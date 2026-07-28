@@ -21,7 +21,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'admin@lusoweld.pt',
+            'email' => 'info@lusoweld.com',
             'role' => UserRole::Admin->value,
         ]);
 

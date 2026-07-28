@@ -18,7 +18,7 @@ class AdminTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
@@ -44,7 +44,7 @@ class AdminTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $this->actingAs($admin)
             ->get(route('admin.products.index'))
@@ -58,7 +58,7 @@ class AdminTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $this->actingAs($admin)
             ->get(route('admin.settings.index', ['group' => 'stripe']))
@@ -73,7 +73,7 @@ class AdminTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $this->actingAs($admin)
             ->post(route('admin.categories.store'), [
@@ -94,7 +94,7 @@ class AdminTest extends TestCase
         Storage::fake('public');
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
         $category = Category::query()->roots()->first();
         $this->assertNotNull($category);
 
@@ -113,7 +113,7 @@ class AdminTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $pendingOrder = \App\Models\Order::query()
             ->where('payment_status', 'pending')

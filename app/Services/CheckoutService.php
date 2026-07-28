@@ -53,7 +53,7 @@ class CheckoutService
                     $existing->stripe_checkout_session_id,
                 );
 
-                if ($session->status !== 'expired') {
+                if ($session->status !== 'expired' && filled($session->client_secret)) {
                     return [
                         'order' => $existing->load('items'),
                         'client_secret' => $session->client_secret,
@@ -113,9 +113,15 @@ class CheckoutService
             $request->session()->put('checkout_idempotency_key', $idempotencyKey);
             $request->session()->put('checkout_order_id', $order->id);
 
+            $clientSecret = $session->client_secret;
+
+            if (! filled($clientSecret)) {
+                throw new \RuntimeException('O Stripe não devolveu credenciais de pagamento.');
+            }
+
             return [
                 'order' => $order->load('items'),
-                'client_secret' => $session->client_secret,
+                'client_secret' => $clientSecret,
             ];
         });
     }
@@ -320,6 +326,36 @@ class CheckoutService
         }
 
         return route('checkout.payment', $params, absolute: true);
+    }
+
+    public function resolvePaymentClientSecret(Order $order): string
+    {
+        if ($order->isPaid()) {
+            throw new \RuntimeException('Esta encomenda já está paga.');
+        }
+
+        if ($order->stripe_checkout_session_id) {
+            try {
+                $session = $this->stripe->retrieveCheckoutSession(
+                    $order->stripe_checkout_session_id,
+                );
+
+                if ($session->status !== 'expired' && filled($session->client_secret)) {
+                    return $session->client_secret;
+                }
+            } catch (\Throwable) {
+                // Sessão inválida — recriamos abaixo.
+            }
+        }
+
+        $session = $this->stripe->createCheckoutSession($order);
+        $order->update(['stripe_checkout_session_id' => $session->id]);
+
+        if (! filled($session->client_secret)) {
+            throw new \RuntimeException('O Stripe não devolveu credenciais de pagamento.');
+        }
+
+        return $session->client_secret;
     }
 
     private function decrementStock(Order $order): void

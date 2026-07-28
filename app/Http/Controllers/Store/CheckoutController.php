@@ -86,17 +86,13 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.success', $params);
         }
 
-        if (! $order->stripe_checkout_session_id) {
-            abort(404, 'Pagamento não encontrado para esta encomenda.');
-        }
-
         try {
-            $session = $this->stripeService->retrieveOrderCheckoutSession($order);
+            $clientSecret = $this->checkoutService->resolvePaymentClientSecret($order);
         } catch (\Throwable) {
             abort(503, 'Não foi possível carregar o pagamento. Verifique a configuração do Stripe.');
         }
 
-        return $this->paymentPage($order, $session->client_secret);
+        return $this->paymentPage($order, $clientSecret);
     }
 
     public function success(Request $request, Order $order): Response

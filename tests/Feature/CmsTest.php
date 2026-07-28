@@ -30,7 +30,7 @@ class CmsTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $this->actingAs($admin)
             ->get(route('admin.pages.index'))
@@ -52,7 +52,7 @@ class CmsTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@lusoweld.pt')->first();
+        $admin = User::query()->where('email', 'info@lusoweld.com')->first();
 
         $this->actingAs($admin)
             ->post(route('admin.pages.store'), [

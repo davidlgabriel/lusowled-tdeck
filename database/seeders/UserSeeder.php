@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     {
         $admin = User::query()->create([
             'name' => 'Admin Lusoweld',
-            'email' => 'admin@lusoweld.pt',
+            'email' => 'info@lusoweld.com',
             'role' => UserRole::Admin,
             'phone' => '912345678',
             'tax_id' => '500000001',
