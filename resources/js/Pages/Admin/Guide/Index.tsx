@@ -40,6 +40,17 @@ function Tip({ children }: { children: ReactNode }) {
     );
 }
 
+function Example({ title, children }: { title: string; children: ReactNode }) {
+    return (
+        <div className="rounded-lg border border-brand-300 bg-white px-4 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-500">
+                {title}
+            </p>
+            <div className="mt-2 space-y-2 text-sm text-brand-700">{children}</div>
+        </div>
+    );
+}
+
 function AdminLink({
     href,
     children,
@@ -58,7 +69,7 @@ const sections = [
     { id: 'acesso', label: 'Acesso ao admin' },
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'produtos', label: 'Produtos' },
-    { id: 'variantes', label: 'Variantes (cores/packs)' },
+    { id: 'variantes', label: 'Variantes — resumo' },
     { id: 'categorias', label: 'Categorias' },
     { id: 'paginas', label: 'Páginas CMS' },
     { id: 'navegacao', label: 'Navegação' },
@@ -148,68 +159,241 @@ export default function AdminGuideIndex() {
                             <AdminLink href={route('admin.products.index')}>
                                 Produtos
                             </AdminLink>
-                            .
+                            . O formulário divide-se em duas colunas: à esquerda
+                            ficam nome, descrição e imagens; à direita preço,
+                            stock, estado e categorias.
                         </p>
 
                         <h3 className="font-medium text-brand-900">
-                            Criar um produto
+                            Antes de começar: produto simples ou com variantes?
+                        </h3>
+                        <ul className="list-disc space-y-2 pl-5">
+                            <li>
+                                <strong>Produto simples</strong> — um único artigo,
+                                uma cor, um tamanho, um preço. Ex.: «Kit de
+                                fixação universal».
+                            </li>
+                            <li>
+                                <strong>Produto com variantes</strong> — o mesmo
+                                artigo existe em combinações diferentes (cor,
+                                pack, m², etc.), cada uma com preço e stock
+                                próprios. Ex.: deck WPC em Castanho 5 m², Castanho
+                                10 m², Cinza 5 m²…
+                            </li>
+                        </ul>
+                        <Tip>
+                            Se o cliente na loja tiver de escolher cor ou pack
+                            antes de comprar, use variantes. Se não, basta um
+                            produto simples.
+                        </Tip>
+
+                        <h3 className="font-medium text-brand-900">
+                            Passo 1 — Criar o produto (obrigatório para todos)
                         </h3>
                         <StepList
                             items={[
-                                'Clique em «Novo produto».',
-                                'Preencha nome, SKU, descrição e preço base (sem IVA).',
-                                'Opcionalmente defina preço de promoção (deve ser inferior ao preço base).',
-                                'Indique stock e limite de alerta de stock baixo.',
-                                'Escolha estado «Ativo» para publicar na loja, ou «Rascunho» para ocultar.',
-                                'Marque «Produto em destaque» se quiser que apareça na homepage.',
-                                'Selecione uma ou mais categorias.',
-                                'Clique «Criar produto» — depois pode adicionar imagens e variantes.',
+                                'Menu lateral → Produtos → «Novo produto».',
+                                'Nome: o título que aparece na loja (ex.: «Deck WPC Premium»).',
+                                'SKU: código interno único do produto (ex.: DECK-WPC-01). Não pode repetir noutro produto.',
+                                'Slug: deixe vazio para gerar automaticamente a partir do nome (URL amigável).',
+                                'Descrição: texto completo da ficha — aparece na página do produto.',
+                                'Preço base (sem IVA): preço de referência. Se usar variantes com preços próprios, pode ser o preço «desde» ou o valor da variante mais barata.',
+                                'Preço promoção (opcional): só para produtos simples. Deve ser inferior ao preço base.',
+                                'Stock: quantidade disponível. Só conta se o produto NÃO tiver variantes.',
+                                'Alerta: limite abaixo do qual aparece aviso de stock baixo no admin.',
+                                'Estado: «Ativo» = visível na loja; «Rascunho» = oculto enquanto prepara o conteúdo.',
+                                'Produto em destaque: aparece na homepage.',
+                                'Categorias: marque uma ou mais para o produto aparecer nos filtros certos.',
+                                'Clique «Criar produto».',
+                            ]}
+                        />
+                        <Tip>
+                            As variantes e as imagens só podem ser adicionadas
+                            depois de criar o produto — a página de edição abre
+                            automaticamente.
+                        </Tip>
+
+                        <h3 className="font-medium text-brand-900">
+                            Passo 2 — Adicionar imagens
+                        </h3>
+                        <StepList
+                            items={[
+                                'Na mesma página de edição, desça à secção «Imagens» (coluna esquerda).',
+                                'Clique no campo de ficheiro e escolha uma foto — o upload é imediato.',
+                                'Carregue várias imagens se quiser galeria na ficha do produto.',
+                                'A primeira imagem fica «Principal» (listagens e carrinho). Para mudar, clique «Principal» noutra miniatura.',
+                                '«Remover» apaga uma imagem.',
+                            ]}
+                        />
+                        <Tip>
+                            Imagens quadradas (~1000×1000 px), JPG ou PNG.
+                            As imagens são partilhadas por todas as variantes —
+                            não é preciso foto diferente por cor.
+                        </Tip>
+
+                        <h3 className="font-medium text-brand-900">
+                            Passo 3 — Produto simples (sem variantes)
+                        </h3>
+                        <p>
+                            Se não precisa de cores/packs, termine aqui: confirme
+                            stock e preço na coluna direita, estado «Ativo», e
+                            clique «Guardar alterações». Na loja o cliente vê o
+                            preço e adiciona directo ao carrinho.
+                        </p>
+
+                        <h3 className="font-medium text-brand-900">
+                            Passo 4 — Adicionar variantes (cores, packs…)
+                        </h3>
+                        <p>
+                            Desça até «Variantes (cores, packs, etc.)» na coluna
+                            esquerda. Cada variante é uma combinação que o
+                            cliente pode comprar.
+                        </p>
+                        <StepList
+                            items={[
+                                'Nome da variante: texto completo visível na loja (ex.: «Castanho — Pack 5 m²»).',
+                                'SKU: código único desta variante (ex.: DECK-WPC-CAST-5). Obrigatório e diferente das outras variantes.',
+                                'Preço (sem IVA): preço desta combinação. Deixe vazio para usar o preço base do produto.',
+                                'Cor: ex. «Castanho», «Cinza» — na loja aparece como botão de seleção.',
+                                'Pack / tamanho: ex. «5 m²», «Pack 10 un.» — também aparece como botão.',
+                                'Stock: unidades disponíveis só desta variante.',
+                                'Ordem: número para ordenar na lista (0 = primeiro).',
+                                'Variante ativa: desmarque para ocultar sem apagar.',
+                                'Clique «Adicionar variante» e repita para cada combinação.',
+                            ]}
+                        />
+
+                        <Example title="Exemplo prático — Deck com 2 cores e 2 packs">
+                            <p>
+                                <strong>Produto:</strong> Deck WPC Premium · SKU{' '}
+                                DECK-01 · Preço base 30 € (referência)
+                            </p>
+                            <p>
+                                <strong>Variante 1:</strong> Castanho — 5 m² ·
+                                SKU DECK-CAST-5 · Cor: Castanho · Pack: 5 m² ·
+                                Preço: 40 € · Stock: 15
+                            </p>
+                            <p>
+                                <strong>Variante 2:</strong> Castanho — 10 m² ·
+                                SKU DECK-CAST-10 · Cor: Castanho · Pack: 10 m² ·
+                                Preço: 75 € · Stock: 8
+                            </p>
+                            <p>
+                                <strong>Variante 3:</strong> Cinza — 5 m² · SKU
+                                DECK-CINZA-5 · Cor: Cinza · Pack: 5 m² · Preço:
+                                42 € · Stock: 10
+                            </p>
+                            <p>
+                                Na loja o cliente escolhe primeiro a cor, depois
+                                o pack, vê o preço actualizado e só então
+                                «Adicionar ao carrinho».
+                            </p>
+                        </Example>
+
+                        <h3 className="font-medium text-brand-900">
+                            Editar ou remover variantes
+                        </h3>
+                        <StepList
+                            items={[
+                                'Produtos → clique no produto → secção «Variantes».',
+                                '«Editar» abre o formulário inline da variante — altere e «Guardar variante».',
+                                '«Eliminar» remove a variante (confirme na janela).',
                             ]}
                         />
 
                         <h3 className="font-medium text-brand-900">
-                            Editar produto e imagens
+                            O que muda na loja
                         </h3>
-                        <StepList
-                            items={[
-                                'Na lista de produtos, clique no nome ou em «Editar».',
-                                'Altere os campos e clique «Guardar alterações».',
-                                'Na secção «Imagens», escolha um ficheiro para carregar fotos.',
-                                'Use «Principal» para definir a foto que aparece nas listagens.',
-                                'Use «Remover» para apagar uma imagem.',
-                            ]}
-                        />
+                        <ul className="list-disc space-y-2 pl-5">
+                            <li>
+                                <strong>Sem variantes:</strong> preço único,
+                                botão «Adicionar ao carrinho» directo.
+                            </li>
+                            <li>
+                                <strong>Com variantes:</strong> listagens
+                                mostram «desde X €» se os preços forem
+                                diferentes; na ficha há botões Cor / Pack; o
+                                cliente tem de escolher antes de comprar; na
+                                listagem aparece «Escolher opções» em vez de
+                                carrinho rápido.
+                            </li>
+                        </ul>
+
                         <Tip>
-                            Recomendamos imagens quadradas (ex.: 1000×1000 px) em
-                            JPG ou PNG. A primeira imagem carregada torna-se
-                            automaticamente a principal.
+                            Com variantes activas, o stock do produto base (coluna
+                            direita) é ignorado — controle o stock em cada
+                            variante. Se uma variante esgota, fica marcada
+                            «(esgotado)» na loja mas as outras continuam
+                            disponíveis.
                         </Tip>
                     </GuideSection>
 
                     <GuideSection
                         id="variantes"
-                        title="Variantes (cores, packs, preços diferentes)"
+                        title="Variantes — resumo rápido"
                     >
                         <p>
-                            Produtos com cores, packs ou tamanhos diferentes
-                            devem usar variantes. Edite o produto e desça até à
-                            secção «Variantes».
+                            Secção de referência rápida. Para o guia completo,
+                            veja «Produtos» acima.
                         </p>
-                        <StepList
-                            items={[
-                                'Preencha o nome da variante (ex.: «Castanho — Pack 5 m²»).',
-                                'Indique um SKU único para cada variante.',
-                                'Opcionalmente preencha «Cor» e «Pack / tamanho» — aparecem como botões na loja.',
-                                'Defina o preço da variante (vazio = usa o preço do produto).',
-                                'Indique o stock desta variante.',
-                                'Clique «Adicionar variante».',
-                            ]}
-                        />
-                        <Tip>
-                            Quando um produto tem variantes ativas, o stock do
-                            produto base é ignorado. O cliente tem de escolher
-                            cor/pack antes de adicionar ao carrinho.
-                        </Tip>
+
+                        <h3 className="font-medium text-brand-900">
+                            Campos de cada variante
+                        </h3>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-left text-sm">
+                                <thead className="border-b border-brand-200 text-xs uppercase text-brand-500">
+                                    <tr>
+                                        <th className="py-2 pr-4">Campo</th>
+                                        <th className="py-2">Para quê serve</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-brand-100">
+                                    {[
+                                        ['Nome', 'Texto mostrado ao cliente e no carrinho'],
+                                        ['SKU', 'Código único (stock, encomendas)'],
+                                        ['Preço', 'Preço desta combinação; vazio = preço do produto'],
+                                        ['Cor', 'Botão de escolha na loja (opcional)'],
+                                        ['Pack / tamanho', 'Segundo botão de escolha (opcional)'],
+                                        ['Stock', 'Unidades desta variante'],
+                                        ['Ordem', 'Posição na lista'],
+                                        ['Ativa', 'Desligar sem eliminar'],
+                                    ].map(([field, desc]) => (
+                                        <tr key={field}>
+                                            <td className="py-2 pr-4 font-medium text-brand-900">
+                                                {field}
+                                            </td>
+                                            <td className="py-2 text-brand-600">
+                                                {desc}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 className="font-medium text-brand-900">
+                            Erros comuns
+                        </h3>
+                        <ul className="list-disc space-y-2 pl-5">
+                            <li>
+                                SKU duplicado — cada variante precisa de SKU
+                                diferente de todos os produtos e variantes.
+                            </li>
+                            <li>
+                                Esquecer stock na variante — o produto aparece
+                                esgotado mesmo com stock no produto base.
+                            </li>
+                            <li>
+                                Só preencher Cor sem Pack (ou vice-versa) —
+                                funciona, mas preencha ambos se o cliente escolhe
+                                as duas opções.
+                            </li>
+                            <li>
+                                Variante inactiva — não aparece na loja; active
+                                ou crie outra.
+                            </li>
+                        </ul>
                     </GuideSection>
 
                     <GuideSection id="categorias" title="Categorias">

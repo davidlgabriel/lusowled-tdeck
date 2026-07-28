@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContentPageController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GuideController;
 use App\Http\Controllers\Admin\NavigationController;
 use App\Http\Controllers\Admin\OrderController;
