@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-white text-brand-900 antialiased;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex min-h-[48px] items-center justify-center rounded-md bg-brand-900 px-6 py-3 text-sm font-medium tracking-wide text-white transition hover:bg-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-secondary {
+        @apply inline-flex min-h-[48px] items-center justify-center rounded-md border border-brand-300 bg-white px-6 py-3 text-sm font-medium tracking-wide text-brand-900 transition hover:border-brand-900 hover:bg-brand-50 focus:outline-none focus:ring-2 focus:ring-brand-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-brand-700 transition hover:bg-brand-100 hover:text-brand-900;
+    }
+
+    .input-field {
+        @apply block w-full rounded-md border-brand-300 bg-white text-brand-900 shadow-sm transition placeholder:text-brand-400 focus:border-brand-900 focus:ring-brand-900;
+    }
+
+    .input-field-soft {
+        @apply block w-full rounded-lg bg-brand-100/50 px-3 py-2.5 text-sm text-brand-900 transition placeholder:text-brand-400 focus:bg-brand-100 focus:outline-none focus:ring-1 focus:ring-brand-300/60;
+    }
+
+    .filter-panel {
+        @apply rounded-2xl bg-white p-6 shadow-[0_4px_24px_rgba(61,26,10,0.05)];
+    }
+
+    .btn-soft {
+        @apply inline-flex min-h-[44px] items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-brand-900 shadow-[0_4px_16px_rgba(61,26,10,0.08)] transition hover:shadow-[0_6px_20px_rgba(61,26,10,0.12)] focus:outline-none focus:ring-2 focus:ring-brand-200 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .card {
+        @apply rounded-lg border border-brand-200 bg-white p-6 shadow-card;
+    }
+
+    .store-container {
+        @apply mx-auto w-full max-w-store px-4 sm:px-6 lg:px-8;
+    }
+
+    .store-section {
+        @apply py-12 md:py-16 lg:py-20;
+    }
+
+    .store-heading {
+        @apply text-2xl font-semibold tracking-tight text-brand-900 md:text-3xl;
+    }
+
+    .store-subheading {
+        @apply mt-2 text-sm text-brand-500 md:text-base;
+    }
+
+    .product-grid {
+        @apply grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4;
+    }
+
+    .collection-tile {
+        @apply relative block overflow-hidden rounded-lg bg-brand-100;
+    }
+
+    .nav-link {
+        @apply text-sm font-medium text-brand-700 transition hover:text-brand-900;
+    }
+
+    .icon-btn {
+        @apply relative inline-flex h-10 w-10 items-center justify-center rounded-full text-brand-800 transition hover:bg-brand-100;
+    }
+}
