@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,27 +37,7 @@ class SettingsController extends Controller
             $group = 'store';
         }
 
-        $settings = $this->settings->group($group)
-            ->sortBy('key')
-            ->values()
-            ->map(fn (Setting $setting) => [
-                'key' => $setting->key,
-                'label' => $setting->label,
-                'description' => $setting->description,
-                'type' => $setting->type->value,
-                'value' => $setting->type === SettingType::Encrypted
-                    ? ''
-                    : ($setting->type === SettingType::Boolean
-                        ? ($setting->getDecryptedValue() ? '1' : '0')
-                        : ($setting->getDecryptedValue() ?? '')),
-                'masked' => $setting->type === SettingType::Encrypted
-                    ? $setting->maskedValue()
-                    : null,
-                'is_public' => $setting->is_public,
-                'asset_url' => in_array($setting->key, ['store.logo_path', 'store.favicon_path'], true)
-                    ? $this->settings->assetUrl($setting->getDecryptedValue())
-                    : null,
-            ]);
+        $this->settings->syncMissingFromDefinition();
 
         return Inertia::render('Admin/Settings/Index', [
             'group' => $group,
@@ -64,11 +45,66 @@ class SettingsController extends Controller
                 'key' => $key,
                 'label' => $label,
             ])->values(),
-            'settings' => $settings,
+            'settings' => $this->settingsForGroup($group),
             'stripeWebhookUrl' => route('webhooks.stripe', absolute: true),
             'stripeGuide' => $this->stripeGuide(),
             'contactFormUrl' => route('contact.index', absolute: true),
         ]);
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function settingsForGroup(string $group): Collection
+    {
+        $existing = $this->settings->group($group)->keyBy('key');
+
+        return $this->settings->definitionForGroup($group)
+            ->map(function (array $definition) use ($existing) {
+                $setting = $existing->get($definition['key']);
+
+                if (! $setting instanceof Setting) {
+                    return [
+                        'key' => $definition['key'],
+                        'label' => $definition['label'],
+                        'description' => $definition['description'],
+                        'type' => $definition['type']->value,
+                        'value' => $definition['type'] === SettingType::Boolean ? '1' : '',
+                        'masked' => null,
+                        'is_public' => $definition['is_public'],
+                        'asset_url' => null,
+                    ];
+                }
+
+                return $this->formatSetting($setting);
+            })
+            ->sortBy('key')
+            ->values();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formatSetting(Setting $setting): array
+    {
+        return [
+            'key' => $setting->key,
+            'label' => $setting->label,
+            'description' => $setting->description,
+            'type' => $setting->type->value,
+            'value' => $setting->type === SettingType::Encrypted
+                ? ''
+                : ($setting->type === SettingType::Boolean
+                    ? ($setting->getDecryptedValue() ? '1' : '0')
+                    : ($setting->getDecryptedValue() ?? '')),
+            'masked' => $setting->type === SettingType::Encrypted
+                ? $setting->maskedValue()
+                : null,
+            'is_public' => $setting->is_public,
+            'asset_url' => in_array($setting->key, ['store.logo_path', 'store.favicon_path'], true)
+                ? $this->settings->assetUrl($setting->getDecryptedValue())
+                : null,
+        ];
     }
 
     /**
@@ -92,10 +128,22 @@ class SettingsController extends Controller
     public function update(SettingsRequest $request): RedirectResponse
     {
         $group = $request->string('group')->toString();
-        $allowedKeys = $this->settings->group($group)->pluck('key')->all();
+        $this->settings->syncMissingFromDefinition();
+
+        $allowedKeys = $this->settings->definitionForGroup($group)
+            ->pluck('key')
+            ->all();
 
         foreach ($request->input('settings', []) as $key => $value) {
             if (! in_array($key, $allowedKeys, true)) {
+                continue;
+            }
+
+            $setting = Setting::query()->where('key', $key)->first();
+
+            if ($setting?->type === SettingType::Boolean) {
+                $this->settings->set($key, filter_var($value, FILTER_VALIDATE_BOOLEAN));
+
                 continue;
             }
 
@@ -103,15 +151,12 @@ class SettingsController extends Controller
                 continue;
             }
 
-            $setting = Setting::query()->where('key', $key)->first();
-
             if (! $setting) {
-                continue;
+                $this->settings->syncMissingFromDefinition();
+                $setting = Setting::query()->where('key', $key)->first();
             }
 
-            if ($setting->type === SettingType::Boolean) {
-                $this->settings->set($key, filter_var($value, FILTER_VALIDATE_BOOLEAN));
-
+            if (! $setting) {
                 continue;
             }
 

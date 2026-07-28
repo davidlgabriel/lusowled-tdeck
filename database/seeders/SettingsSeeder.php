@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\SettingType;
 use App\Models\Setting;
 use App\Services\SettingsService;
 use Database\Seeders\Support\AvidWpcAssetDownloader;
@@ -16,17 +17,29 @@ class SettingsSeeder extends Seeder
         $logoPath = TdeckBranding::installLogo();
 
         foreach (SettingsService::definition() as $definition) {
-            Setting::query()->updateOrCreate(
-                ['key' => $definition['key']],
-                [
-                    'type' => $definition['type'],
-                    'group' => $definition['group'],
-                    'label' => $definition['label'],
-                    'description' => $definition['description'],
-                    'is_public' => $definition['is_public'],
-                    'value' => $this->defaultValue($definition['key'], $logoPath),
-                ]
+            if (Setting::query()->where('key', $definition['key'])->exists()) {
+                continue;
+            }
+
+            $setting = new Setting([
+                'key' => $definition['key'],
+                'type' => $definition['type'],
+                'group' => $definition['group'],
+                'label' => $definition['label'],
+                'description' => $definition['description'],
+                'is_public' => $definition['is_public'],
+            ]);
+
+            $value = $this->defaultValue($definition['key'], $logoPath);
+
+            $setting->setTypedValue(
+                $value ?? match ($definition['type']) {
+                    SettingType::Boolean => false,
+                    SettingType::Integer => 0,
+                    default => null,
+                },
             );
+            $setting->save();
         }
 
         app(SettingsService::class)->clearCache();
@@ -42,7 +55,7 @@ class SettingsSeeder extends Seeder
             'store.shipping_cost' => '5.99',
             'store.default_vat_rate' => '23',
             'store.sales_enabled' => '1',
-            'store.sales_disabled_message' => 'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo ou contactar-nos para mais informações.',
+            'store.sales_disabled_message' => 'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo ou contacte-nos para mais informações.',
             'store.legal_text' => 'Os preços apresentados são sem IVA. O IVA é calculado automaticamente no carrinho e checkout.',
             'store.announcement_text' => '',
             'store.home_show_featured_products' => '0',

@@ -74,6 +74,74 @@ class SettingsService
         Cache::forget(self::CACHE_KEY);
     }
 
+    /**
+     * Cria apenas definições em falta — nunca altera valores existentes.
+     */
+    public function syncMissingFromDefinition(): int
+    {
+        $created = 0;
+
+        foreach (self::definition() as $definition) {
+            if (Setting::query()->where('key', $definition['key'])->exists()) {
+                continue;
+            }
+
+            $setting = new Setting([
+                'key' => $definition['key'],
+                'type' => $definition['type'],
+                'group' => $definition['group'],
+                'label' => $definition['label'],
+                'description' => $definition['description'],
+                'is_public' => $definition['is_public'],
+            ]);
+
+            $setting->setTypedValue($this->defaultValueForKey($definition['key'], $definition['type']));
+            $setting->save();
+            $created++;
+        }
+
+        if ($created > 0) {
+            $this->clearCache();
+        }
+
+        return $created;
+    }
+
+    public function definitionForGroup(string $group): Collection
+    {
+        return collect(self::definition())
+            ->filter(fn (array $definition) => $definition['group'] === $group)
+            ->values();
+    }
+
+    private function defaultValueForKey(string $key, SettingType $type): mixed
+    {
+        $value = match ($key) {
+            'store.name' => 'Lusoweld',
+            'store.currency' => 'EUR',
+            'store.shipping_cost' => '5.99',
+            'store.default_vat_rate' => '23',
+            'store.sales_enabled' => true,
+            'store.sales_disabled_message' => 'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo ou contacte-nos para mais informações.',
+            'store.legal_text' => 'Os preços apresentados são sem IVA. O IVA é calculado automaticamente no carrinho e checkout.',
+            'store.home_show_featured_products' => false,
+            'stripe.payment_card', 'stripe.payment_mbway', 'stripe.payment_multibanco' => true,
+            'invoicing.mode' => 'manual',
+            'email.smtp_port' => 587,
+            default => null,
+        };
+
+        if ($value !== null) {
+            return $value;
+        }
+
+        return match ($type) {
+            SettingType::Boolean => false,
+            SettingType::Integer => 0,
+            default => null,
+        };
+    }
+
     public function group(string $group): Collection
     {
         return $this->all()->filter(fn (Setting $setting) => $setting->group === $group);
