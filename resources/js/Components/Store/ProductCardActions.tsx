@@ -5,7 +5,7 @@ import {
     TrashIcon,
 } from '@/Components/Store/StoreIcons';
 import { PageProps, StoreProduct } from '@/types';
-import { router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 export default function ProductCardActions({
@@ -13,7 +13,7 @@ export default function ProductCardActions({
 }: {
     product: StoreProduct;
 }) {
-    const { cart } = usePage<PageProps>().props;
+    const { cart, store } = usePage<PageProps>().props;
     const [processing, setProcessing] = useState(false);
 
     const cartLine = cart.lines?.find(
@@ -114,6 +114,17 @@ export default function ProductCardActions({
 
     if (!product.is_in_stock) {
         return null;
+    }
+
+    if (!store.sales_enabled) {
+        return (
+            <Link
+                href={route('products.show', product.slug)}
+                className="mt-2 flex w-full items-center justify-center rounded-full border border-brand-200 bg-white py-2 text-xs font-medium text-brand-900 transition hover:border-brand-900 hover:bg-brand-50"
+            >
+                Ver produto
+            </Link>
+        );
     }
 
     if (product.has_variants) {

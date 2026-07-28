@@ -1,10 +1,11 @@
 import Breadcrumbs from '@/Components/Store/Breadcrumbs';
 import OrderTotals from '@/Components/Store/OrderTotals';
 import ProductImage from '@/Components/Store/ProductImage';
+import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { formatMoney } from '@/lib/money';
 import { PageProps } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 
 export default function CartIndex({
     cart,
@@ -31,6 +32,8 @@ export default function CartIndex({
         vat_rate: number;
     };
 }>) {
+    const { store } = usePage<PageProps>().props;
+
     const updateQty = (itemId: number, quantity: number) => {
         router.patch(route('cart.update', itemId), { quantity });
     };
@@ -187,12 +190,16 @@ export default function CartIndex({
                                 vatRate={cart.vat_rate}
                                 taxTotal={cart.tax_total}
                             />
-                            <Link
-                                href={route('checkout.index')}
-                                className="btn-primary mt-6 w-full"
-                            >
-                                Finalizar compra
-                            </Link>
+                            {store.sales_enabled ? (
+                                <Link
+                                    href={route('checkout.index')}
+                                    className="btn-primary mt-6 w-full"
+                                >
+                                    Finalizar compra
+                                </Link>
+                            ) : (
+                                <SalesDisabledNotice className="mt-6" compact />
+                            )}
                             <Link
                                 href={route('products.index')}
                                 className="mt-3 block text-center text-sm text-brand-600 underline"

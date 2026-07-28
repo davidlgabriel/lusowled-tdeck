@@ -16,6 +16,8 @@ export interface StoreBranding {
     favicon_url: string | null;
     currency: string;
     vat_rate: number;
+    sales_enabled: boolean;
+    sales_disabled_message: string;
 }
 
 export interface CartLineSummary {

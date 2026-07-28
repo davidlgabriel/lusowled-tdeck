@@ -1,11 +1,12 @@
 import Breadcrumbs from '@/Components/Store/Breadcrumbs';
+import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
 import ProductCard from '@/Components/Store/ProductCard';
 import ProductImage from '@/Components/Store/ProductImage';
 import ProductPrice from '@/Components/Store/ProductPrice';
 import SectionHeading from '@/Components/Store/SectionHeading';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEvent, useMemo, useState } from 'react';
 
 export default function ProductShow({
@@ -15,6 +16,7 @@ export default function ProductShow({
     product: StoreProduct;
     relatedProducts: StoreProduct[];
 }>) {
+    const { store } = usePage<PageProps>().props;
     const images =
         product.images && product.images.length > 0
             ? product.images
@@ -185,42 +187,48 @@ export default function ProductShow({
                                 </div>
                             )}
 
-                            <div className="flex flex-wrap items-end gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-brand-800">
-                                        Quantidade
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        max={maxQty}
-                                        value={data.quantity}
-                                        onChange={(e) =>
-                                            setData(
-                                                'quantity',
-                                                Number(e.target.value),
-                                            )
-                                        }
-                                        className="input-field mt-1.5 w-24"
-                                        disabled={!inStock}
-                                    />
-                                    {errors.quantity && (
-                                        <p className="mt-1 text-sm text-red-700">
-                                            {errors.quantity}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
+                            {store.sales_enabled ? (
+                                <>
+                                    <div className="flex flex-wrap items-end gap-4">
+                                        <div>
+                                            <label className="text-sm font-medium text-brand-800">
+                                                Quantidade
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                max={maxQty}
+                                                value={data.quantity}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'quantity',
+                                                        Number(e.target.value),
+                                                    )
+                                                }
+                                                className="input-field mt-1.5 w-24"
+                                                disabled={!inStock}
+                                            />
+                                            {errors.quantity && (
+                                                <p className="mt-1 text-sm text-red-700">
+                                                    {errors.quantity}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
 
-                            <button
-                                type="submit"
-                                disabled={processing || !inStock}
-                                className="btn-primary w-full sm:w-auto sm:min-w-[280px]"
-                            >
-                                {inStock
-                                    ? 'Adicionar ao carrinho'
-                                    : 'Indisponível'}
-                            </button>
+                                    <button
+                                        type="submit"
+                                        disabled={processing || !inStock}
+                                        className="btn-primary w-full sm:w-auto sm:min-w-[280px]"
+                                    >
+                                        {inStock
+                                            ? 'Adicionar ao carrinho'
+                                            : 'Indisponível'}
+                                    </button>
+                                </>
+                            ) : (
+                                <SalesDisabledNotice className="mt-6" />
+                            )}
                         </form>
 
                         {product.description && (

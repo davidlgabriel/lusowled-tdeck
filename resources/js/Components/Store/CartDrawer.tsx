@@ -1,5 +1,6 @@
 import OrderTotals from '@/Components/Store/OrderTotals';
 import ProductImage from '@/Components/Store/ProductImage';
+import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
 import { MinusIcon, PlusIcon, TrashIcon } from '@/Components/Store/StoreIcons';
 import { useCartDrawer } from '@/Contexts/CartDrawerContext';
 import { formatMoney } from '@/lib/money';
@@ -9,7 +10,7 @@ import { useEffect } from 'react';
 
 export default function CartDrawer() {
     const { open, closeDrawer } = useCartDrawer();
-    const { cart } = usePage<PageProps>().props;
+    const { cart, store } = usePage<PageProps>().props;
     const summary = cart.drawer;
 
     useEffect(() => {
@@ -218,13 +219,17 @@ export default function CartDrawer() {
                             vatRate={summary.vat_rate}
                             taxTotal={summary.tax_total}
                         />
-                        <Link
-                            href={route('checkout.index')}
-                            onClick={closeDrawer}
-                            className="btn-primary mt-5 w-full"
-                        >
-                            Finalizar compra
-                        </Link>
+                        {store.sales_enabled ? (
+                            <Link
+                                href={route('checkout.index')}
+                                onClick={closeDrawer}
+                                className="btn-primary mt-5 w-full"
+                            >
+                                Finalizar compra
+                            </Link>
+                        ) : (
+                            <SalesDisabledNotice className="mt-5" compact />
+                        )}
                         <Link
                             href={route('cart.index')}
                             onClick={closeDrawer}

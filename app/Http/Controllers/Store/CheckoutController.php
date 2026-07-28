@@ -7,6 +7,7 @@ use App\Http\Requests\Store\CheckoutRequest;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\StoreSalesService;
 use App\Services\StripeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,10 +22,16 @@ class CheckoutController extends Controller
         private readonly CartService $cartService,
         private readonly CheckoutService $checkoutService,
         private readonly StripeService $stripeService,
+        private readonly StoreSalesService $sales,
     ) {}
 
     public function index(Request $request): Response|RedirectResponse
     {
+        if (! $this->sales->enabled()) {
+            return redirect()->route('products.index')
+                ->with('error', $this->sales->disabledMessage());
+        }
+
         $cart = $this->cartService->resolve($request);
 
         if ($cart->items()->count() === 0) {
@@ -67,6 +74,8 @@ class CheckoutController extends Controller
 
     public function store(CheckoutRequest $request): Response
     {
+        $this->sales->ensureEnabled();
+
         $result = $this->checkoutService->createOrder($request, $request->validated());
 
         return $this->paymentPage($result['order'], $result['client_secret']);

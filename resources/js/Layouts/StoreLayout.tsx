@@ -1,6 +1,7 @@
 import CartDrawer from '@/Components/Store/CartDrawer';
 import CartToast from '@/Components/Store/CartToast';
 import FlashMessage from '@/Components/FlashMessage';
+import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
 import StoreFooter from '@/Components/Store/StoreFooter';
 import StoreSearch from '@/Components/Store/StoreSearch';
 import StoreLogo, {
@@ -149,6 +150,14 @@ function StoreLayoutContent({ children }: PropsWithChildren) {
                     </nav>
                 )}
             </header>
+
+            {!store.sales_enabled && (
+                <div className="border-b border-amber-200 bg-amber-50">
+                    <div className="store-container py-3">
+                        <SalesDisabledNotice compact />
+                    </div>
+                </div>
+            )}
 
             <FlashMessage />
             <CartToast />

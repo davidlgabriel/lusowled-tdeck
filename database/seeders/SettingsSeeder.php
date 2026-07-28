@@ -41,6 +41,8 @@ class SettingsSeeder extends Seeder
             'store.currency' => 'EUR',
             'store.shipping_cost' => '5.99',
             'store.default_vat_rate' => '23',
+            'store.sales_enabled' => '1',
+            'store.sales_disabled_message' => 'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo ou contactar-nos para mais informações.',
             'store.legal_text' => 'Os preços apresentados são sem IVA. O IVA é calculado automaticamente no carrinho e checkout.',
             'store.announcement_text' => '',
             'store.home_show_featured_products' => '0',

@@ -93,6 +93,19 @@ export default function SettingsIndex({
                 ))}
             </div>
 
+            {group === 'store' && (
+                <div className="mb-6 rounded-lg border border-brand-200 bg-white p-4 text-sm text-brand-600">
+                    <p className="font-medium text-brand-900">
+                        Modo catálogo
+                    </p>
+                    <p className="mt-2">
+                        Desative <strong>Vendas online</strong> para bloquear
+                        carrinho e checkout. Os produtos e preços continuam
+                        visíveis na loja.
+                    </p>
+                </div>
+            )}
+
             {group === 'security' && (
                 <div className="mb-6 rounded-lg border border-brand-200 bg-white p-4 text-sm text-brand-600">
                     <p className="font-medium text-brand-900">

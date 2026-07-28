@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
+use App\Services\SettingsService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -77,5 +79,45 @@ class StorefrontTest extends TestCase
         $this->actingAs($customer)
             ->get(route('account.orders.show', 1))
             ->assertOk();
+    }
+
+    public function test_sales_disabled_blocks_cart_and_checkout_but_shows_products(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $this->disableSales();
+
+        $product = Product::query()->active()->where('stock_quantity', '>', 0)->first();
+        $this->assertNotNull($product);
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Store/Products/Show')
+                ->where('store.sales_enabled', false));
+
+        $this->post(route('cart.store'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ])->assertSessionHasErrors('sales');
+
+        $this->get(route('checkout.index'))
+            ->assertRedirect(route('products.index'));
+    }
+
+    private function disableSales(): void
+    {
+        Setting::query()->updateOrCreate(
+            ['key' => 'store.sales_enabled'],
+            [
+                'type' => 'boolean',
+                'group' => 'store',
+                'label' => 'Vendas online',
+                'description' => null,
+                'is_public' => true,
+                'value' => '0',
+            ],
+        );
+
+        app(SettingsService::class)->clearCache();
     }
 }

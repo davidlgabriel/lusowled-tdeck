@@ -100,6 +100,11 @@ class SettingsService
             'favicon_url' => $this->assetUrl($this->get('store.favicon_path')),
             'currency' => (string) $this->get('store.currency', 'EUR'),
             'vat_rate' => (float) $this->get('store.default_vat_rate', 23),
+            'sales_enabled' => filter_var($this->get('store.sales_enabled', true), FILTER_VALIDATE_BOOLEAN),
+            'sales_disabled_message' => (string) $this->get(
+                'store.sales_disabled_message',
+                'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo.',
+            ),
         ];
     }
 
@@ -178,6 +183,8 @@ class SettingsService
             ['key' => 'store.currency', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Moeda', 'description' => 'Código ISO (ex: EUR)', 'is_public' => true],
             ['key' => 'store.shipping_cost', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Portes de envio', 'description' => 'Valor fixo de envio em EUR', 'is_public' => true],
             ['key' => 'store.default_vat_rate', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Taxa de IVA (%)', 'description' => 'Percentagem de IVA aplicada automaticamente aos preços (introduzidos sem IVA)', 'is_public' => true],
+            ['key' => 'store.sales_enabled', 'type' => SettingType::Boolean, 'group' => 'store', 'label' => 'Vendas online', 'description' => 'Desative para mostrar apenas o catálogo (produtos e preços visíveis, sem carrinho nem checkout)', 'is_public' => true],
+            ['key' => 'store.sales_disabled_message', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Mensagem — vendas desativadas', 'description' => 'Texto apresentado no site quando as vendas estão bloqueadas', 'is_public' => true],
             ['key' => 'store.legal_text', 'type' => SettingType::Text, 'group' => 'store', 'label' => 'Texto legal', 'description' => 'Termos, política de privacidade, etc.', 'is_public' => true],
 
             // Aparência

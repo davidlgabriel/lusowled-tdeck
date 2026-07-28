@@ -8,6 +8,7 @@ use App\Http\Requests\Store\UpdateCartItemRequest;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Services\CartService;
+use App\Services\StoreSalesService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ class CartController extends Controller
 {
     public function __construct(
         private readonly CartService $cartService,
+        private readonly StoreSalesService $sales,
     ) {}
 
     public function index(Request $request): Response
@@ -30,6 +32,8 @@ class CartController extends Controller
 
     public function store(AddToCartRequest $request): RedirectResponse
     {
+        $this->sales->ensureEnabled();
+
         $cart = $this->cartService->resolve($request);
         $product = Product::query()->active()->findOrFail($request->integer('product_id'));
 
@@ -51,6 +55,8 @@ class CartController extends Controller
 
     public function update(UpdateCartItemRequest $request, CartItem $cartItem): RedirectResponse
     {
+        $this->sales->ensureEnabled();
+
         $cart = $this->cartService->resolve($request);
         $cartItem->load('product');
 
