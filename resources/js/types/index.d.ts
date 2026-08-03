@@ -33,6 +33,8 @@ export interface CartDrawerItem {
     product_name: string;
     product_slug: string;
     variant_name?: string;
+    variant_label?: string | null;
+    variant_options?: Record<string, string>;
     quantity: number;
     unit_price: number;
     line_total: number;

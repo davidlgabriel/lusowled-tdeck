@@ -2,6 +2,7 @@ import Breadcrumbs from '@/Components/Store/Breadcrumbs';
 import OrderTotals from '@/Components/Store/OrderTotals';
 import ProductImage from '@/Components/Store/ProductImage';
 import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
+import VariantOptionsLine from '@/Components/Store/VariantOptionsLine';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { formatMoney } from '@/lib/money';
 import { PageProps } from '@/types';
@@ -18,6 +19,8 @@ export default function CartIndex({
             product_name: string;
             product_slug: string;
             variant_name?: string;
+            variant_label?: string | null;
+            variant_options?: Record<string, string>;
             quantity: number;
             unit_price: number;
             line_total: number;
@@ -102,11 +105,20 @@ export default function CartIndex({
                                             >
                                                 {item.product_name}
                                             </Link>
-                                            {item.variant_name && (
-                                                <p className="mt-1 text-sm text-brand-500">
-                                                    {item.variant_name}
-                                                </p>
-                                            )}
+                                            {(item.variant_options &&
+                                                Object.keys(item.variant_options)
+                                                    .length > 0) ||
+                                            item.variant_name ? (
+                                                <VariantOptionsLine
+                                                    options={
+                                                        item.variant_options
+                                                    }
+                                                    fallbackName={
+                                                        item.variant_name
+                                                    }
+                                                    className="mt-1 text-sm text-brand-600"
+                                                />
+                                            ) : null}
                                             <p className="mt-1 text-sm text-brand-500 sm:hidden">
                                                 {formatMoney(
                                                     item.line_total,

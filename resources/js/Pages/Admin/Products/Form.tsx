@@ -1,9 +1,11 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import ProductDraftBanner from '@/Components/Admin/ProductDraftBanner';
 import ProductVariantsSection, {
     ProductVariantForm,
 } from '@/Components/Admin/ProductVariantsSection';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { FormEvent, useRef } from 'react';
+import type { PageProps } from '@/types';
 
 type ProductForm = {
     id?: number;
@@ -47,6 +49,12 @@ export default function ProductFormPage({
             category_ids: product?.category_ids ?? [],
         });
 
+    const pageProduct = usePage<PageProps<{ product: ProductForm | null }>>().props
+        .product;
+    const liveProduct = pageProduct ?? product;
+    const variantList = liveProduct?.variants ?? [];
+    const variantProductSku = liveProduct?.sku ?? data.sku;
+
     const submit = (e: FormEvent) => {
         e.preventDefault();
         if (isEdit) {
@@ -88,6 +96,14 @@ export default function ProductFormPage({
             <Head title={isEdit ? product!.name : 'Novo produto'} />
 
             <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_320px]">
+                {isEdit && data.status === 'draft' && (
+                    <div className="lg:col-span-2">
+                        <ProductDraftBanner
+                            status={data.status}
+                            productId={product?.id}
+                        />
+                    </div>
+                )}
                 <div className="space-y-6">
                     <section className="card space-y-4">
                         <h2 className="text-sm font-semibold uppercase tracking-widest text-brand-900">
@@ -209,13 +225,6 @@ export default function ProductFormPage({
                                 className="mt-4 text-sm"
                             />
                         </section>
-                    )}
-
-                    {isEdit && product?.id && (
-                        <ProductVariantsSection
-                            productId={product.id}
-                            variants={product.variants ?? []}
-                        />
                     )}
                 </div>
 
@@ -355,6 +364,16 @@ export default function ProductFormPage({
                     </div>
                 </aside>
             </form>
+
+            {isEdit && liveProduct?.id && (
+                <div className="mt-8">
+                    <ProductVariantsSection
+                        productId={liveProduct.id}
+                        productSku={variantProductSku}
+                        variants={variantList}
+                    />
+                </div>
+            )}
         </AdminLayout>
     );
 }

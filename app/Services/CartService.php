@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
 use App\Support\StorefrontData;
+use App\Support\VariantPresentation;
 use App\Support\VatCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -217,6 +218,8 @@ class CartService
                 'product_name' => $item->product->name,
                 'product_slug' => $item->product->slug,
                 'variant_name' => $item->variant?->name,
+                'variant_label' => VariantPresentation::cartLabel($item->variant),
+                'variant_options' => $item->variant?->options ?? [],
                 'quantity' => $item->quantity,
                 'unit_price' => (float) $item->unit_price,
                 'line_total' => $item->lineTotal(),

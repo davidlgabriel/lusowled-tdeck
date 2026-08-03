@@ -1,17 +1,9 @@
 import { formatMoney } from '@/lib/money';
+import { optionDisplayLabel } from '@/lib/variantOptions';
 import { StoreProduct } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
 
 type Variant = NonNullable<StoreProduct['variants']>[number];
-
-const OPTION_LABELS: Record<string, string> = {
-    cor: 'Cor',
-    pack: 'Pack',
-};
-
-function optionLabel(key: string): string {
-    return OPTION_LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
-}
 
 export default function ProductVariantSelector({
     variants,
@@ -93,7 +85,7 @@ export default function ProductVariantSelector({
                     return (
                         <div key={key}>
                             <p className="text-sm font-medium text-brand-800">
-                                {optionLabel(key)}
+                                {optionDisplayLabel(key)}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-2">
                                 {values.map((value) => {
@@ -131,22 +123,15 @@ export default function ProductVariantSelector({
                         </div>
                     );
                 })}
-
-                {selectedVariant && (
-                    <p className="text-sm text-brand-500">
-                        Selecionado: {selectedVariant.name}
-                        {showPrices &&
-                            selectedVariant.current_price !== null &&
-                            ` · ${formatMoney(selectedVariant.current_price, currency)} sem IVA`}
-                    </p>
-                )}
             </div>
         );
     }
 
     return (
         <div>
-            <label className="text-sm font-medium text-brand-800">Variante</label>
+            <label className="text-sm font-medium text-brand-800">
+                Opção
+            </label>
             <select
                 value={selectedId ?? ''}
                 onChange={(e) =>
@@ -154,6 +139,7 @@ export default function ProductVariantSelector({
                 }
                 className="input-field mt-1.5"
                 required
+                aria-label="Escolher opção do produto"
             >
                 {variants.map((variant) => (
                     <option

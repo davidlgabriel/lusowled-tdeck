@@ -1,6 +1,7 @@
 import OrderTotals from '@/Components/Store/OrderTotals';
 import ProductImage from '@/Components/Store/ProductImage';
 import SalesDisabledNotice from '@/Components/Store/SalesDisabledNotice';
+import VariantOptionsLine from '@/Components/Store/VariantOptionsLine';
 import { MinusIcon, PlusIcon, TrashIcon } from '@/Components/Store/StoreIcons';
 import { useCartDrawer } from '@/Contexts/CartDrawerContext';
 import { formatMoney } from '@/lib/money';
@@ -142,11 +143,16 @@ export default function CartDrawer() {
                                         >
                                             {item.product_name}
                                         </Link>
-                                        {item.variant_name && (
-                                            <p className="mt-0.5 text-xs text-brand-500">
-                                                {item.variant_name}
-                                            </p>
-                                        )}
+                                        {(item.variant_options &&
+                                            Object.keys(item.variant_options)
+                                                .length > 0) ||
+                                        item.variant_name ? (
+                                            <VariantOptionsLine
+                                                options={item.variant_options}
+                                                fallbackName={item.variant_name}
+                                                className="mt-0.5 text-xs text-brand-600"
+                                            />
+                                        ) : null}
                                         <p className="mt-1 text-sm font-medium text-brand-900">
                                             {formatMoney(
                                                 item.line_total,

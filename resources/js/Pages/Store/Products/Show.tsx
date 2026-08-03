@@ -4,6 +4,7 @@ import ProductCard from '@/Components/Store/ProductCard';
 import ProductImage from '@/Components/Store/ProductImage';
 import ProductPrice from '@/Components/Store/ProductPrice';
 import ProductVariantSelector from '@/Components/Store/ProductVariantSelector';
+import VariantOptionsLine from '@/Components/Store/VariantOptionsLine';
 import SectionHeading from '@/Components/Store/SectionHeading';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { formatMoney } from '@/lib/money';
@@ -192,7 +193,7 @@ export default function ProductShow({
                             {hasVariantOptions && (
                                 <div className="rounded-lg border border-brand-200 bg-brand-50/50 p-4">
                                     <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-900">
-                                        Escolha a opção
+                                        Opções do produto
                                     </h2>
                                     <div className="mt-3">
                                         <ProductVariantSelector
@@ -203,31 +204,26 @@ export default function ProductShow({
                                         />
                                     </div>
                                     {selectedVariant && (
-                                        <dl className="mt-4 grid gap-1 text-sm text-brand-600">
-                                            <div className="flex gap-2">
-                                                <dt className="text-brand-500">
-                                                    Variante:
-                                                </dt>
-                                                <dd className="font-medium text-brand-900">
-                                                    {selectedVariant.name}
-                                                </dd>
-                                            </div>
+                                        <div className="mt-4 rounded-md border border-brand-200 bg-white px-3 py-3">
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-brand-500">
+                                                Selecionado
+                                            </p>
+                                            <VariantOptionsLine
+                                                options={selectedVariant.options}
+                                                fallbackName={selectedVariant.name}
+                                                className="mt-1 text-base font-medium text-brand-900"
+                                            />
                                             {store.sales_enabled &&
                                                 selectedVariant.current_price !==
                                                     null && (
-                                                    <div className="flex gap-2">
-                                                        <dt className="text-brand-500">
-                                                            Preço:
-                                                        </dt>
-                                                        <dd>
-                                                            {formatMoney(
-                                                                selectedVariant.current_price,
-                                                            )}{' '}
-                                                            sem IVA
-                                                        </dd>
-                                                    </div>
+                                                    <p className="mt-1 text-sm text-brand-600">
+                                                        {formatMoney(
+                                                            selectedVariant.current_price,
+                                                        )}{' '}
+                                                        sem IVA
+                                                    </p>
                                                 )}
-                                        </dl>
+                                        </div>
                                     )}
                                 </div>
                             )}
