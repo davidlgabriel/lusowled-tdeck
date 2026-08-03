@@ -18,7 +18,8 @@ class ProductVariantController extends Controller
 
         $product->variants()->create($data);
 
-        return Redirect::back()->with('success', 'Variante adicionada.');
+        return Redirect::route('admin.products.show', $product)
+            ->with('success', 'Variante adicionada.');
     }
 
     public function update(
@@ -30,7 +31,8 @@ class ProductVariantController extends Controller
 
         $variant->update($this->variantData($request));
 
-        return Redirect::back()->with('success', 'Variante atualizada.');
+        return Redirect::route('admin.products.show', $product)
+            ->with('success', 'Variante atualizada.');
     }
 
     public function destroy(Product $product, ProductVariant $variant): RedirectResponse
@@ -39,7 +41,8 @@ class ProductVariantController extends Controller
 
         $variant->delete();
 
-        return Redirect::back()->with('success', 'Variante eliminada.');
+        return Redirect::route('admin.products.show', $product)
+            ->with('success', 'Variante eliminada.');
     }
 
     /**

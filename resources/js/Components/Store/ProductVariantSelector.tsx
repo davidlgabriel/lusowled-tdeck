@@ -59,6 +59,18 @@ export default function ProductVariantSelector({
         );
     };
 
+    useEffect(() => {
+        if (selectedId !== null) {
+            return;
+        }
+        const first = variants.find((v) => v.is_in_stock) ?? variants[0];
+        if (!first) {
+            return;
+        }
+        setSelections(first.options ?? {});
+        onSelect(first.id);
+    }, [variants, selectedId, onSelect]);
+
     const selectOption = (key: string, value: string) => {
         const nextOptions = { ...selections, [key]: value };
         setSelections(nextOptions);

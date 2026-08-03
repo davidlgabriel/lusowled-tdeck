@@ -6,9 +6,17 @@ import ProductPrice from '@/Components/Store/ProductPrice';
 import ProductVariantSelector from '@/Components/Store/ProductVariantSelector';
 import SectionHeading from '@/Components/Store/SectionHeading';
 import StoreLayout from '@/Layouts/StoreLayout';
+import { formatMoney } from '@/lib/money';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEvent, useMemo, useState } from 'react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+
+function defaultVariantId(
+    variants: NonNullable<StoreProduct['variants']>,
+): number | null {
+    const first = variants.find((v) => v.is_in_stock) ?? variants[0];
+    return first?.id ?? null;
+}
 
 export default function ProductShow({
     product,
@@ -18,6 +26,9 @@ export default function ProductShow({
     relatedProducts: StoreProduct[];
 }>) {
     const { store } = usePage<PageProps>().props;
+    const variants = product.variants ?? [];
+    const hasVariantOptions = variants.length > 0;
+
     const images =
         product.images && product.images.length > 0
             ? product.images
@@ -31,29 +42,25 @@ export default function ProductShow({
               ];
 
     const [activeImage, setActiveImage] = useState(0);
-    const [variantId, setVariantId] = useState<number | null>(
-        product.variants?.[0]?.id ?? null,
+    const [variantId, setVariantId] = useState<number | null>(() =>
+        hasVariantOptions ? defaultVariantId(variants) : null,
     );
 
     const selectedVariant = useMemo(
-        () => product.variants?.find((v) => v.id === variantId) ?? null,
-        [product.variants, variantId],
+        () => variants.find((v) => v.id === variantId) ?? null,
+        [variants, variantId],
     );
 
     const displayPrice = selectedVariant
         ? {
               current_price: selectedVariant.current_price,
               base_price:
-                  selectedVariant.price !== null && selectedVariant.price !== undefined
+                  selectedVariant.price !== null &&
+                  selectedVariant.price !== undefined
                       ? selectedVariant.price
                       : product.base_price,
               sale_price: product.sale_price,
-              is_on_sale:
-                  selectedVariant.current_price !== null &&
-                  selectedVariant.price !== null &&
-                  selectedVariant.price !== undefined &&
-                  product.sale_price !== null &&
-                  selectedVariant.current_price < selectedVariant.price,
+              is_on_sale: false,
               price_from: null,
               price_to: null,
               has_variable_pricing: false,
@@ -74,11 +81,26 @@ export default function ProductShow({
         quantity: 1,
     });
 
+    useEffect(() => {
+        setData('product_variant_id', variantId);
+    }, [variantId, setData]);
+
+    useEffect(() => {
+        if (hasVariantOptions && variantId === null) {
+            setVariantId(defaultVariantId(variants));
+        }
+    }, [hasVariantOptions, variantId, variants]);
+
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        setData('product_variant_id', variantId);
+        if (hasVariantOptions && !variantId) {
+            return;
+        }
         post(route('cart.store'), { preserveScroll: true });
     };
+
+    const canAddToCart =
+        inStock && (!hasVariantOptions || variantId !== null);
 
     return (
         <StoreLayout>
@@ -145,7 +167,8 @@ export default function ProductShow({
                             {product.name}
                         </h1>
                         <p className="mt-2 text-sm text-brand-500">
-                            SKU {product.sku}
+                            SKU{' '}
+                            {selectedVariant?.sku ?? product.sku}
                         </p>
 
                         <div className="mt-6 border-b border-brand-200 pb-6">
@@ -166,13 +189,53 @@ export default function ProductShow({
                         </div>
 
                         <form onSubmit={submit} className="mt-6 space-y-5">
-                            {product.has_variants && product.variants && (
-                                <ProductVariantSelector
-                                    variants={product.variants}
-                                    selectedId={variantId}
-                                    onSelect={setVariantId}
-                                    showPrices={store.sales_enabled}
-                                />
+                            {hasVariantOptions && (
+                                <div className="rounded-lg border border-brand-200 bg-brand-50/50 p-4">
+                                    <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-900">
+                                        Escolha a opção
+                                    </h2>
+                                    <div className="mt-3">
+                                        <ProductVariantSelector
+                                            variants={variants}
+                                            selectedId={variantId}
+                                            onSelect={setVariantId}
+                                            showPrices={store.sales_enabled}
+                                        />
+                                    </div>
+                                    {selectedVariant && (
+                                        <dl className="mt-4 grid gap-1 text-sm text-brand-600">
+                                            <div className="flex gap-2">
+                                                <dt className="text-brand-500">
+                                                    Variante:
+                                                </dt>
+                                                <dd className="font-medium text-brand-900">
+                                                    {selectedVariant.name}
+                                                </dd>
+                                            </div>
+                                            {store.sales_enabled &&
+                                                selectedVariant.current_price !==
+                                                    null && (
+                                                    <div className="flex gap-2">
+                                                        <dt className="text-brand-500">
+                                                            Preço:
+                                                        </dt>
+                                                        <dd>
+                                                            {formatMoney(
+                                                                selectedVariant.current_price,
+                                                            )}{' '}
+                                                            sem IVA
+                                                        </dd>
+                                                    </div>
+                                                )}
+                                        </dl>
+                                    )}
+                                </div>
+                            )}
+
+                            {errors.product_variant_id && (
+                                <p className="text-sm text-red-700">
+                                    {errors.product_variant_id}
+                                </p>
                             )}
 
                             {store.sales_enabled ? (
@@ -185,7 +248,7 @@ export default function ProductShow({
                                             <input
                                                 type="number"
                                                 min={1}
-                                                max={maxQty}
+                                                max={Math.max(maxQty, 1)}
                                                 value={data.quantity}
                                                 onChange={(e) =>
                                                     setData(
@@ -194,7 +257,7 @@ export default function ProductShow({
                                                     )
                                                 }
                                                 className="input-field mt-1.5 w-24"
-                                                disabled={!inStock}
+                                                disabled={!canAddToCart}
                                             />
                                             {errors.quantity && (
                                                 <p className="mt-1 text-sm text-red-700">
@@ -206,12 +269,16 @@ export default function ProductShow({
 
                                     <button
                                         type="submit"
-                                        disabled={processing || !inStock}
+                                        disabled={
+                                            processing || !canAddToCart
+                                        }
                                         className="btn-primary w-full sm:w-auto sm:min-w-[280px]"
                                     >
-                                        {inStock
-                                            ? 'Adicionar ao carrinho'
-                                            : 'Indisponível'}
+                                        {!hasVariantOptions || variantId
+                                            ? inStock
+                                                ? 'Adicionar ao carrinho'
+                                                : 'Indisponível'
+                                            : 'Selecione uma opção'}
                                     </button>
                                 </>
                             ) : (

@@ -16,7 +16,9 @@ class StorefrontData
      */
     public static function product(Product $product, bool $detailed = false): array
     {
-        $product->loadMissing(['images', 'categories', 'variants' => fn ($q) => $q->where('is_active', true)]);
+        $product->loadMissing(['images', 'categories', 'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order')]);
+
+        $product->variants->each(fn (ProductVariant $variant) => $variant->setRelation('product', $product));
 
         $primaryImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
 
@@ -55,13 +57,15 @@ class StorefrontData
                 'id' => $v->id,
                 'name' => $v->name,
                 'sku' => $v->sku,
-                'options' => $v->options ?? [],
+                'options' => is_array($v->options) ? $v->options : [],
                 'price' => $v->price !== null ? (float) $v->price : null,
-                'current_price' => $v->currentPrice(),
+                'current_price' => $v->price !== null
+                    ? (float) $v->price
+                    : $product->currentPrice(),
                 'stock_quantity' => $v->stock_quantity,
                 'is_in_stock' => $v->isInStock(),
-            ])->values();
-            $data['has_variants'] = $product->variants->isNotEmpty();
+            ])->values()->all();
+            $data['has_variants'] = count($data['variants']) > 0;
         }
 
         if (! app(StoreSalesService::class)->enabled()) {

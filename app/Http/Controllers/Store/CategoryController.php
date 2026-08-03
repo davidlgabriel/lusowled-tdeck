@@ -23,7 +23,11 @@ class CategoryController extends Controller
         $products = Product::query()
             ->active()
             ->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds))
-            ->with(['images', 'categories'])
+            ->with([
+                'images',
+                'categories',
+                'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            ])
             ->latest()
             ->paginate(12);
 

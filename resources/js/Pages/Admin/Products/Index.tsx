@@ -16,6 +16,7 @@ export default function ProductsIndex({
             stock_quantity: number;
             is_featured: boolean;
             categories: string[];
+            active_variants_count: number;
         }[];
         links: { url: string | null; label: string; active: boolean }[];
     };
@@ -58,6 +59,11 @@ export default function ProductsIndex({
                                             Destaque
                                         </span>
                                     )}
+                                    {p.active_variants_count > 0 && (
+                                        <span className="mt-1 inline-block text-xs text-brand-500">
+                                            {p.active_variants_count} variantes
+                                        </span>
+                                    )}
                                 </td>
                                 <td className="px-5 py-4 text-brand-600">
                                     {p.sku}
@@ -74,8 +80,15 @@ export default function ProductsIndex({
                                 <td className="px-5 py-4">{p.status_label}</td>
                                 <td className="px-5 py-4 text-right">
                                     <Link
-                                        href={route('admin.products.edit', p.id)}
+                                        href={route('admin.products.show', p.id)}
                                         className="font-medium text-brand-900 underline"
+                                    >
+                                        Detalhes
+                                    </Link>
+                                    <span className="mx-2 text-brand-300">·</span>
+                                    <Link
+                                        href={route('admin.products.edit', p.id)}
+                                        className="font-medium text-brand-600 underline"
                                     >
                                         Editar
                                     </Link>

@@ -26,6 +26,9 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->with('categories')
+            ->withCount([
+                'variants as active_variants_count' => fn ($q) => $q->where('is_active', true),
+            ])
             ->latest()
             ->paginate(20)
             ->through(fn (Product $product) => [
@@ -40,6 +43,7 @@ class ProductController extends Controller
                 'stock_quantity' => $product->stock_quantity,
                 'is_featured' => $product->is_featured,
                 'categories' => $product->categories->pluck('name'),
+                'active_variants_count' => (int) $product->active_variants_count,
             ]);
 
         return Inertia::render('Admin/Products/Index', [
@@ -63,8 +67,18 @@ class ProductController extends Controller
         $product = Product::query()->create($data);
         $product->categories()->sync($request->input('category_ids', []));
 
-        return Redirect::route('admin.products.edit', $product)
-            ->with('success', 'Produto criado. Adicione imagens se necessário.');
+        return Redirect::route('admin.products.show', $product)
+            ->with('success', 'Produto criado. Adicione imagens e variantes abaixo.');
+    }
+
+    public function show(Product $product): Response
+    {
+        $product->load(['categories', 'images', 'variants']);
+
+        return Inertia::render('Admin/Products/Show', [
+            'product' => $this->formatProduct($product),
+            'storeUrl' => route('products.show', $product->slug),
+        ]);
     }
 
     public function edit(Product $product): Response

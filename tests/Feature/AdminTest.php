@@ -263,10 +263,10 @@ class AdminTest extends TestCase
         $this->assertSame('82.00', $variant->price);
 
         $this->actingAs($admin)
-            ->get(route('admin.products.edit', $product))
+            ->get(route('admin.products.show', $product))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->component('Admin/Products/Form')
+                ->component('Admin/Products/Show')
                 ->has('product.variants', 1));
 
         $this->actingAs($admin)

@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified', 'admin', 'two-factor'])
         Route::get('/produtos', [ProductController::class, 'index'])->name('products.index');
         Route::get('/produtos/criar', [ProductController::class, 'create'])->name('products.create');
         Route::post('/produtos', [ProductController::class, 'store'])->name('products.store');
+        Route::get('/produtos/{product}', [ProductController::class, 'show'])->name('products.show');
         Route::get('/produtos/{product}/editar', [ProductController::class, 'edit'])->name('products.edit');
         Route::patch('/produtos/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/produtos/{product}', [ProductController::class, 'destroy'])->name('products.destroy');

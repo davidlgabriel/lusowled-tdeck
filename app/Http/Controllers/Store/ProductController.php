@@ -17,7 +17,11 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->active()
-            ->with(['images', 'categories']);
+            ->with([
+                'images',
+                'categories',
+                'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            ]);
 
         if ($search = $request->string('q')->trim()->toString()) {
             $query->where(function ($q) use ($search) {
@@ -84,7 +88,11 @@ class ProductController extends Controller
 
         $products = Product::query()
             ->active()
-            ->with(['images', 'categories'])
+            ->with([
+                'images',
+                'categories',
+                'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            ])
             ->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('sku', 'like', "%{$search}%")
@@ -102,7 +110,11 @@ class ProductController extends Controller
     {
         abort_unless($product->status === ProductStatus::Active, 404);
 
-        $product->load(['images', 'categories', 'variants' => fn ($q) => $q->where('is_active', true)]);
+        $product->load([
+            'images',
+            'categories',
+            'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+        ]);
 
         $related = Product::query()
             ->active()
@@ -111,7 +123,11 @@ class ProductController extends Controller
                 'categories.id',
                 $product->categories->pluck('id')
             ))
-            ->with(['images', 'categories'])
+            ->with([
+                'images',
+                'categories',
+                'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            ])
             ->limit(4)
             ->get()
             ->map(fn (Product $p) => StorefrontData::product($p));

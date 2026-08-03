@@ -13,6 +13,18 @@ class ProductVariantRequest extends FormRequest
         return $this->user()?->isAdmin() ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $price = $this->input('price');
+        if ($price === '' || $price === null) {
+            $this->merge(['price' => null]);
+        }
+
+        if (! $this->has('is_active')) {
+            $this->merge(['is_active' => true]);
+        }
+    }
+
     /**
      * @return array<string, ValidationRule|array<mixed>|string>
      */

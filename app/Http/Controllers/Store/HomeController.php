@@ -17,7 +17,11 @@ class HomeController extends Controller
         $featured = Product::query()
             ->active()
             ->featured()
-            ->with(['images', 'categories'])
+            ->with([
+                'images',
+                'categories',
+                'variants' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            ])
             ->limit(6)
             ->get()
             ->map(fn (Product $p) => StorefrontData::product($p));

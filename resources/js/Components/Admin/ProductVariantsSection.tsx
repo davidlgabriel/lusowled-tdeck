@@ -1,5 +1,5 @@
 import { formatMoney } from '@/lib/money';
-import { router, useForm } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 
 export type ProductVariantForm = {
@@ -252,6 +252,7 @@ export default function ProductVariantsSection({
     productId: number;
     variants: ProductVariantForm[];
 }) {
+    const pageErrors = (usePage().props.errors ?? {}) as Record<string, string>;
     const { data, setData, post, processing, errors, reset } = useForm(emptyVariant());
 
     const submit = (e: FormEvent) => {
@@ -262,6 +263,8 @@ export default function ProductVariantsSection({
         });
     };
 
+    const allErrors = { ...pageErrors, ...errors };
+
     return (
         <section className="card space-y-4">
             <div>
@@ -271,8 +274,20 @@ export default function ProductVariantsSection({
                 <p className="mt-2 text-sm text-brand-500">
                     Adicione combinações com preço e stock próprios. O stock do
                     produto base é ignorado quando existem variantes ativas.
+                    Após guardar, confirme em «Variantes na loja» à direita ou
+                    na loja pública.
                 </p>
             </div>
+
+            {Object.keys(allErrors).length > 0 && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    {Object.entries(allErrors).map(([key, message]) => (
+                        <p key={key}>
+                            {key}: {message}
+                        </p>
+                    ))}
+                </div>
+            )}
 
             {variants.length > 0 ? (
                 <div className="space-y-3">
@@ -301,7 +316,7 @@ export default function ProductVariantsSection({
                 <VariantFormFields
                     data={data}
                     setData={(key, value) => setData(key as keyof typeof data, value as never)}
-                    errors={errors}
+                    errors={allErrors}
                 />
                 <button type="submit" disabled={processing} className="btn-primary text-sm">
                     Adicionar variante
