@@ -1,14 +1,16 @@
 import Breadcrumbs from '@/Components/Store/Breadcrumbs';
 import Pagination from '@/Components/Store/Pagination';
 import ProductCard from '@/Components/Store/ProductCard';
+import PageSeo, { PageSeoData } from '@/Components/Seo/PageSeo';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 export default function CategoryShow({
     category,
     subcategories,
     products,
+    seo,
 }: PageProps<{
     category: { id: number; name: string; slug: string; description?: string };
     subcategories: { id: number; name: string; slug: string }[];
@@ -16,10 +18,11 @@ export default function CategoryShow({
         data: StoreProduct[];
         links: { url: string | null; label: string; active: boolean }[];
     };
+    seo: PageSeoData;
 }>) {
     return (
         <StoreLayout>
-            <Head title={category.name} />
+            <PageSeo seo={seo} />
 
             <div className="store-container pb-16">
                 <Breadcrumbs

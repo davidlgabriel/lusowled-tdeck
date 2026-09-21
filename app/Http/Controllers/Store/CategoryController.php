@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\StorefrontData;
+use App\Services\StoreSeoService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CategoryController extends Controller
 {
+    public function __construct(
+        private readonly StoreSeoService $seo,
+    ) {}
+
     public function show(Category $category): Response
     {
         abort_unless($category->is_active, 404);
@@ -35,6 +40,7 @@ class CategoryController extends Controller
             'category' => StorefrontData::category($category),
             'subcategories' => $category->children->map(fn (Category $c) => StorefrontData::category($c))->values(),
             'products' => $products->through(fn (Product $p) => StorefrontData::product($p)),
+            'seo' => $this->seo->forCategory($category),
         ]);
     }
 }

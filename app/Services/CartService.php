@@ -18,6 +18,7 @@ class CartService
 {
     public function __construct(
         private readonly SettingsService $settings,
+        private readonly ShippingService $shipping,
     ) {}
 
     public function resolve(Request $request): Cart
@@ -207,7 +208,8 @@ class CartService
         $vatRate = (float) $this->settings->get('store.default_vat_rate', 23);
         $subtotal = round($cart->subtotal(), 2);
         $taxTotal = VatCalculator::taxFromNet($subtotal, $vatRate);
-        $shipping = (float) $this->settings->get('store.shipping_cost', 5.99);
+        $shippingDetails = $this->shipping->calculate($subtotal);
+        $shipping = $shippingDetails['amount'];
         $currency = (string) $this->settings->get('store.currency', 'EUR');
 
         return [
@@ -234,6 +236,11 @@ class CartService
             'subtotal' => $subtotal,
             'tax_total' => $taxTotal,
             'shipping' => $shipping,
+            'shipping_mode' => $shippingDetails['mode'],
+            'shipping_label' => $shippingDetails['label'],
+            'shipping_message' => $shippingDetails['message'],
+            'shipping_free_threshold' => $shippingDetails['free_threshold'],
+            'amount_until_free_shipping' => $shippingDetails['amount_until_free_shipping'],
             'total' => round($subtotal + $taxTotal + $shipping, 2),
             'currency' => $currency,
             'vat_rate' => $vatRate,

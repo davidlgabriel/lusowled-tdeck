@@ -34,6 +34,7 @@ export default function OrderShow({
         subtotal: number;
         discount_total: number;
         shipping_total: number;
+        shipping_quote_pending: boolean;
         tax_total: number;
         total: number;
         currency: string;
@@ -204,12 +205,22 @@ export default function OrderShow({
                             <div className="flex justify-between">
                                 <dt className="text-brand-600">Envio</dt>
                                 <dd>
-                                    {formatMoney(
-                                        order.shipping_total,
-                                        order.currency,
-                                    )}
+                                    {order.shipping_quote_pending
+                                        ? 'A calcular por email'
+                                        : order.shipping_total > 0
+                                          ? formatMoney(
+                                                order.shipping_total,
+                                                order.currency,
+                                            )
+                                          : 'Grátis'}
                                 </dd>
                             </div>
+                            {order.shipping_quote_pending && (
+                                <p className="text-xs leading-relaxed text-brand-500">
+                                    O valor do transporte será enviado por email
+                                    antes do envio.
+                                </p>
+                            )}
                             <div className="flex justify-between border-t border-brand-200 pt-2 text-base font-medium">
                                 <dt>{isPaid ? 'Total pago' : 'Total'}</dt>
                                 <dd>

@@ -7,12 +7,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\StorefrontData;
+use App\Services\StoreSeoService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        private readonly StoreSeoService $seo,
+    ) {}
+
     public function index(Request $request): Response
     {
         $query = Product::query()
@@ -75,6 +80,7 @@ class ProductController extends Controller
                 'preco_max' => $request->input('preco_max'),
                 'ordenar' => $sort,
             ],
+            'seo' => $this->seo->forProductsIndex($search ?: null),
         ]);
     }
 
@@ -135,6 +141,7 @@ class ProductController extends Controller
         return Inertia::render('Store/Products/Show', [
             'product' => StorefrontData::product($product, detailed: true),
             'relatedProducts' => $related,
+            'seo' => $this->seo->forProduct($product),
         ]);
     }
 }

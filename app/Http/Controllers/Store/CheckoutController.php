@@ -7,6 +7,7 @@ use App\Http\Requests\Store\CheckoutRequest;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\ShippingService;
 use App\Services\StoreSalesService;
 use App\Services\StripeService;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,7 @@ class CheckoutController extends Controller
         private readonly CheckoutService $checkoutService,
         private readonly StripeService $stripeService,
         private readonly StoreSalesService $sales,
+        private readonly ShippingService $shipping,
     ) {}
 
     public function index(Request $request): Response|RedirectResponse
@@ -125,6 +127,10 @@ class CheckoutController extends Controller
                 'total' => (float) $order->total,
                 'currency' => $order->currency,
                 'email' => $order->billing_email,
+                'shipping_quote_pending' => (bool) $order->shipping_quote_pending,
+                'shipping_message' => $order->shipping_quote_pending
+                    ? $this->shipping->quoteMessage()
+                    : null,
             ],
             'paymentState' => $paymentState,
             'paymentUrl' => $paymentState === 'pending'

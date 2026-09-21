@@ -6,6 +6,7 @@ use App\Enums\SettingType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SettingsRequest;
 use App\Models\Setting;
+use App\Services\GoogleShoppingFeedService;
 use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,10 +24,12 @@ class SettingsController extends Controller
         'email' => 'Email',
         'security' => 'Segurança',
         'invoicing' => 'Faturação',
+        'google_shopping' => 'Google Shopping',
     ];
 
     public function __construct(
         private readonly SettingsService $settings,
+        private readonly GoogleShoppingFeedService $googleShoppingFeed,
     ) {}
 
     public function index(Request $request): Response
@@ -39,6 +42,10 @@ class SettingsController extends Controller
 
         $this->settings->syncMissingFromDefinition();
 
+        if ($this->googleShoppingFeed->feedToken() === '') {
+            $this->googleShoppingFeed->regenerateToken();
+        }
+
         return Inertia::render('Admin/Settings/Index', [
             'group' => $group,
             'groups' => collect(self::GROUPS)->map(fn ($label, $key) => [
@@ -49,7 +56,25 @@ class SettingsController extends Controller
             'stripeWebhookUrl' => route('webhooks.stripe', absolute: true),
             'stripeGuide' => $this->stripeGuide(),
             'contactFormUrl' => route('contact.index', absolute: true),
+            'googleShopping' => $this->googleShoppingPanel(),
         ]);
+    }
+
+    /**
+     * @return array{enabled: bool, feedUrl: ?string, hasToken: bool, sitemapUrl: string, robotsUrl: string}
+     */
+    private function googleShoppingPanel(): array
+    {
+        $enabled = $this->googleShoppingFeed->isEnabled();
+        $hasToken = $this->googleShoppingFeed->feedToken() !== '';
+
+        return [
+            'enabled' => $enabled,
+            'hasToken' => $hasToken,
+            'feedUrl' => $enabled && $hasToken ? $this->googleShoppingFeed->feedUrl() : null,
+            'sitemapUrl' => route('sitemap', absolute: true),
+            'robotsUrl' => route('robots', absolute: true),
+        ];
     }
 
     /**
@@ -181,5 +206,15 @@ class SettingsController extends Controller
         $this->settings->set($request->string('key')->toString(), $path);
 
         return Redirect::back()->with('success', 'Ficheiro carregado com sucesso.');
+    }
+
+    public function regenerateGoogleShoppingFeedToken(): RedirectResponse
+    {
+        $this->googleShoppingFeed->regenerateToken();
+
+        return Redirect::back()->with(
+            'success',
+            'Novo URL do feed gerado. Atualize o endereço no Google Merchant Center.',
+        );
     }
 }

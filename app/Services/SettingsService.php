@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Support\PublicAsset;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class SettingsService
 {
@@ -120,11 +121,19 @@ class SettingsService
             'store.name' => 'Lusoweld',
             'store.currency' => 'EUR',
             'store.shipping_cost' => '5.99',
+            'store.shipping_free_threshold' => '900',
+            'store.shipping_quote_message' => 'Será enviado por email o valor do transporte, calculado em função do volume da encomenda e do local de entrega.',
             'store.default_vat_rate' => '23',
             'store.sales_enabled' => true,
             'store.sales_disabled_message' => 'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo ou contacte-nos para mais informações.',
             'store.legal_text' => 'Os preços apresentados são sem IVA. O IVA é calculado automaticamente no carrinho e checkout.',
             'store.home_show_featured_products' => false,
+            'google_shopping.feed_token' => Str::random(48),
+            'google_shopping.brand' => 'T-DECK',
+            'google_shopping.target_country' => 'PT',
+            'google_shopping.content_language' => 'pt',
+            'google_shopping.include_variants' => true,
+            'google_shopping.price_includes_vat' => true,
             'stripe.payment_card', 'stripe.payment_mbway', 'stripe.payment_multibanco' => true,
             'invoicing.mode' => 'manual',
             'email.smtp_port' => 587,
@@ -249,7 +258,9 @@ class SettingsService
             ['key' => 'store.logo_path', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Logótipo', 'description' => 'Caminho do ficheiro do logótipo', 'is_public' => true],
             ['key' => 'store.favicon_path', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Favicon', 'description' => 'Ícone do separador do browser (.ico, .png ou .svg)', 'is_public' => true],
             ['key' => 'store.currency', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Moeda', 'description' => 'Código ISO (ex: EUR)', 'is_public' => true],
-            ['key' => 'store.shipping_cost', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Portes de envio', 'description' => 'Valor fixo de envio em EUR', 'is_public' => true],
+            ['key' => 'store.shipping_cost', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Portes fixos (obsoleto)', 'description' => 'Já não é usado — a loja aplica portes grátis acima do limite ou orçamento por email', 'is_public' => false],
+            ['key' => 'store.shipping_free_threshold', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Portes grátis a partir de (€, sem IVA)', 'description' => 'Encomendas com subtotal igual ou superior a este valor têm envio gratuito', 'is_public' => true],
+            ['key' => 'store.shipping_quote_message', 'type' => SettingType::Text, 'group' => 'store', 'label' => 'Mensagem — portes por calcular', 'description' => 'Mostrada no carrinho e checkout quando o subtotal está abaixo do limite de portes grátis', 'is_public' => true],
             ['key' => 'store.default_vat_rate', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Taxa de IVA (%)', 'description' => 'Percentagem de IVA aplicada automaticamente aos preços (introduzidos sem IVA)', 'is_public' => true],
             ['key' => 'store.sales_enabled', 'type' => SettingType::Boolean, 'group' => 'store', 'label' => 'Vendas online', 'description' => 'Desative para mostrar apenas o catálogo (produtos e preços visíveis, sem carrinho nem checkout)', 'is_public' => true],
             ['key' => 'store.sales_disabled_message', 'type' => SettingType::String, 'group' => 'store', 'label' => 'Mensagem — vendas desativadas', 'description' => 'Texto apresentado no site quando as vendas estão bloqueadas', 'is_public' => true],
@@ -267,6 +278,15 @@ class SettingsService
             ['key' => 'store.home_hero_cta_secondary_label', 'type' => SettingType::String, 'group' => 'appearance', 'label' => 'Hero — botão secundário', 'description' => null, 'is_public' => true],
             ['key' => 'store.home_hero_cta_secondary_url', 'type' => SettingType::String, 'group' => 'appearance', 'label' => 'Hero — URL botão secundário', 'description' => null, 'is_public' => true],
             ['key' => 'store.home_show_featured_products', 'type' => SettingType::Boolean, 'group' => 'appearance', 'label' => 'Produtos em destaque na homepage', 'description' => 'Mostrar secção de produtos em destaque na página inicial', 'is_public' => true],
+
+            // Google Shopping (feed para Merchant Center / anúncios)
+            ['key' => 'google_shopping.enabled', 'type' => SettingType::Boolean, 'group' => 'google_shopping', 'label' => 'Feed Google Shopping ativo', 'description' => 'Quando ativo, o URL do feed fica acessível para o Google Merchant Center', 'is_public' => false],
+            ['key' => 'google_shopping.feed_token', 'type' => SettingType::String, 'group' => 'google_shopping', 'label' => 'Token do feed', 'description' => 'Segredo na URL — não partilhe publicamente', 'is_public' => false],
+            ['key' => 'google_shopping.brand', 'type' => SettingType::String, 'group' => 'google_shopping', 'label' => 'Marca (brand)', 'description' => 'Nome da marca enviado no feed (ex.: T-DECK). Vazio usa o nome da loja.', 'is_public' => false],
+            ['key' => 'google_shopping.target_country', 'type' => SettingType::String, 'group' => 'google_shopping', 'label' => 'País alvo', 'description' => 'Código ISO (ex.: PT)', 'is_public' => false],
+            ['key' => 'google_shopping.content_language', 'type' => SettingType::String, 'group' => 'google_shopping', 'label' => 'Idioma do conteúdo', 'description' => 'Código ISO (ex.: pt)', 'is_public' => false],
+            ['key' => 'google_shopping.include_variants', 'type' => SettingType::Boolean, 'group' => 'google_shopping', 'label' => 'Uma linha por variante', 'description' => 'Produtos com variantes ativas exportam cada variante (recomendado para cores/packs)', 'is_public' => false],
+            ['key' => 'google_shopping.price_includes_vat', 'type' => SettingType::Boolean, 'group' => 'google_shopping', 'label' => 'Preços com IVA no feed', 'description' => 'Recomendado para consumidores em Portugal — os preços na loja são introduzidos sem IVA', 'is_public' => false],
         ];
     }
 }

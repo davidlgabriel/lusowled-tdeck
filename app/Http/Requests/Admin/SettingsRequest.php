@@ -18,7 +18,7 @@ class SettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'group' => ['required', 'in:store,stripe,email,security,invoicing,appearance'],
+            'group' => ['required', 'in:store,stripe,email,security,invoicing,appearance,google_shopping'],
             'settings' => ['required', 'array'],
             'settings.*' => ['nullable', 'string'],
         ];

@@ -30,6 +30,11 @@ export default function CartIndex({
         subtotal: number;
         tax_total: number;
         shipping: number;
+        shipping_mode: 'free' | 'quoted_later';
+        shipping_label: string;
+        shipping_message: string | null;
+        shipping_free_threshold: number;
+        amount_until_free_shipping: number;
         total: number;
         currency: string;
         vat_rate: number;
@@ -201,6 +206,15 @@ export default function CartIndex({
                                 currency={cart.currency}
                                 vatRate={cart.vat_rate}
                                 taxTotal={cart.tax_total}
+                                shippingMode={cart.shipping_mode}
+                                shippingLabel={cart.shipping_label}
+                                shippingMessage={cart.shipping_message}
+                                amountUntilFreeShipping={
+                                    cart.amount_until_free_shipping
+                                }
+                                shippingFreeThreshold={
+                                    cart.shipping_free_threshold
+                                }
                             />
                             {store.sales_enabled ? (
                                 <Link

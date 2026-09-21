@@ -224,6 +224,15 @@ export default function CartDrawer() {
                             currency={summary.currency}
                             vatRate={summary.vat_rate}
                             taxTotal={summary.tax_total}
+                            shippingMode={summary.shipping_mode}
+                            shippingLabel={summary.shipping_label}
+                            shippingMessage={summary.shipping_message}
+                            amountUntilFreeShipping={
+                                summary.amount_until_free_shipping
+                            }
+                            shippingFreeThreshold={
+                                summary.shipping_free_threshold
+                            }
                         />
                         {store.sales_enabled ? (
                             <Link

@@ -88,8 +88,10 @@ class LegalPages
                 self::image('/storage/avidwpc/categories/decking.jpg', 'Produtos WPC para envio em Portugal')
                 .'<h2>Âmbito de entrega</h2><p>Enviamos para <strong>Portugal continental</strong>. Para Açores, Madeira ou outros destinos, contacte-nos antes da encomenda.</p>'
                 .'<h2>Portes e prazos</h2><ul>'
-                .'<li>Portes de envio fixos calculados no checkout</li>'
-                .'<li>Prazo estimado: 5 a 15 dias úteis após confirmação do pagamento</li>'
+                .'<li><strong>Portes grátis</strong> em encomendas iguais ou superiores a <strong>900&nbsp;€ (sem IVA)</strong></li>'
+                .'<li>Encomendas abaixo desse valor: o valor do transporte será enviado por <strong>email</strong>, calculado em função do volume da encomenda e do local de entrega</li>'
+                .'<li>O pagamento online inclui apenas produtos e IVA — o transporte é confirmado por email antes do envio</li>'
+                .'<li>Prazo estimado: 5 a 15 dias úteis após confirmação do pagamento e acordo do transporte</li>'
                 .'<li>Receberá email com confirmação e informação de seguimento quando disponível</li>'
                 .'</ul>'
                 .'<h2>Receção da mercadoria</h2><p>Verifique o estado da embalagem e dos produtos no momento da entrega. Em caso de dano visível, indique-o no documento de transporte e contacte-nos nas 48 horas seguintes.</p>',

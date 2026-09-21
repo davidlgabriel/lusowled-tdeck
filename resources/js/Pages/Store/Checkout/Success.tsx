@@ -15,6 +15,8 @@ export default function CheckoutSuccess({
         total: number;
         currency: string;
         email: string;
+        shipping_quote_pending?: boolean;
+        shipping_message?: string | null;
     };
     paymentState?: PaymentState;
     paymentUrl?: string | null;
@@ -97,6 +99,12 @@ export default function CheckoutSuccess({
                         </>
                     )}
                 </p>
+
+                {order.shipping_quote_pending && order.shipping_message && (
+                    <p className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950">
+                        {order.shipping_message}
+                    </p>
+                )}
 
                 <p className="mt-4 text-xl font-semibold text-brand-900">
                     {formatMoney(order.total, order.currency)}

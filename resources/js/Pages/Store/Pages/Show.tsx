@@ -1,22 +1,25 @@
+import PageSeo, { PageSeoData } from '@/Components/Seo/PageSeo';
 import Breadcrumbs from '@/Components/Store/Breadcrumbs';
 import StoreLayout from '@/Layouts/StoreLayout';
-import { Head } from '@inertiajs/react';
+import { PageProps } from '@/types';
 
 export default function ContentPageShow({
     page,
-}: {
+    seo,
+}: PageProps<{
     page: {
         title: string;
         slug: string;
         content: string;
         content_format: string;
     };
-}) {
+    seo: PageSeoData;
+}>) {
     const isHtml = page.content_format === 'html';
 
     return (
         <StoreLayout>
-            <Head title={page.title} />
+            <PageSeo seo={seo} />
 
             <div className="store-container max-w-3xl pb-16">
                 <Breadcrumbs

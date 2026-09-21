@@ -68,6 +68,8 @@ Route::middleware(['auth', 'verified', 'admin', 'two-factor'])
         Route::get('/configuracoes', [SettingsController::class, 'index'])->name('settings.index');
         Route::patch('/configuracoes', [SettingsController::class, 'update'])->name('settings.update');
         Route::post('/configuracoes/upload', [SettingsController::class, 'uploadAsset'])->name('settings.upload');
+        Route::post('/configuracoes/google-shopping/regenerar-token', [SettingsController::class, 'regenerateGoogleShoppingFeedToken'])
+            ->name('settings.google-shopping.regenerate-token');
 
         Route::get('/paginas', [ContentPageController::class, 'index'])->name('pages.index');
         Route::get('/paginas/criar', [ContentPageController::class, 'create'])->name('pages.create');

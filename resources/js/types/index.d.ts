@@ -48,6 +48,11 @@ export interface CartDrawerSummary {
     subtotal: number;
     tax_total: number;
     shipping: number;
+    shipping_mode: 'free' | 'quoted_later';
+    shipping_label: string;
+    shipping_message: string | null;
+    shipping_free_threshold: number;
+    amount_until_free_shipping: number;
     total: number;
     currency: string;
     vat_rate: number;

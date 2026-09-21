@@ -7,11 +7,16 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Promotion;
 use App\Support\StorefrontData;
+use App\Services\StoreSeoService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        private readonly StoreSeoService $seo,
+    ) {}
+
     public function index(): Response
     {
         $featured = Product::query()
@@ -44,6 +49,7 @@ class HomeController extends Controller
             'featuredProducts' => $featured,
             'categories' => $categories,
             'promotions' => $promotions,
+            'seo' => $this->seo->forHome(),
         ]);
     }
 }

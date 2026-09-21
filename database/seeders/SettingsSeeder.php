@@ -8,6 +8,7 @@ use App\Services\SettingsService;
 use Database\Seeders\Support\AvidWpcAssetDownloader;
 use Database\Seeders\Support\TdeckBranding;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class SettingsSeeder extends Seeder
 {
@@ -53,6 +54,8 @@ class SettingsSeeder extends Seeder
             'store.favicon_path' => $logoPath,
             'store.currency' => 'EUR',
             'store.shipping_cost' => '5.99',
+            'store.shipping_free_threshold' => '900',
+            'store.shipping_quote_message' => 'Será enviado por email o valor do transporte, calculado em função do volume da encomenda e do local de entrega.',
             'store.default_vat_rate' => '23',
             'store.sales_enabled' => '1',
             'store.sales_disabled_message' => 'As vendas online estão temporariamente indisponíveis. Pode consultar o nosso catálogo ou contacte-nos para mais informações.',
@@ -79,6 +82,12 @@ class SettingsSeeder extends Seeder
             'stripe.payment_card' => '1',
             'stripe.payment_mbway' => '1',
             'stripe.payment_multibanco' => '1',
+            'google_shopping.feed_token' => Str::random(48),
+            'google_shopping.brand' => 'T-DECK',
+            'google_shopping.target_country' => 'PT',
+            'google_shopping.content_language' => 'pt',
+            'google_shopping.include_variants' => '1',
+            'google_shopping.price_includes_vat' => '1',
             default => null,
         };
     }

@@ -19,6 +19,7 @@ export default function SettingsIndex({
     stripeWebhookUrl,
     stripeGuide,
     contactFormUrl,
+    googleShopping,
 }: {
     group: string;
     groups: { key: string; label: string }[];
@@ -32,6 +33,13 @@ export default function SettingsIndex({
         webhooksUrl: string;
     };
     contactFormUrl: string;
+    googleShopping: {
+        enabled: boolean;
+        feedUrl: string | null;
+        hasToken: boolean;
+        sitemapUrl: string;
+        robotsUrl: string;
+    };
 }) {
     const fileRef = useRef<HTMLInputElement>(null);
     const uploadKeyRef = useRef<string>('store.logo_path');
@@ -51,6 +59,25 @@ export default function SettingsIndex({
         e.preventDefault();
         patch(route('admin.settings.update'), { preserveScroll: true });
     };
+
+    const regenerateFeedToken = () => {
+        if (
+            !confirm(
+                'Isto invalida o URL anterior. Terá de atualizar o feed no Merchant Center. Continuar?',
+            )
+        ) {
+            return;
+        }
+        router.post(route('admin.settings.google-shopping.regenerate-token'), {}, {
+            preserveScroll: true,
+        });
+    };
+
+    const visibleSettings = settings.filter(
+        (s) =>
+            s.key !== 'google_shopping.feed_token' &&
+            s.key !== 'store.shipping_cost',
+    );
 
     const uploadAsset = (key: string) => {
         uploadKeyRef.current = key;
@@ -96,7 +123,13 @@ export default function SettingsIndex({
             {group === 'store' && (
                 <div className="mb-6 rounded-lg border border-brand-200 bg-white p-4 text-sm text-brand-600">
                     <p className="font-medium text-brand-900">
-                        Modo catálogo
+                        Portes de envio
+                    </p>
+                    <p className="mt-2">
+                        Encomendas a partir de <strong>900&nbsp;€ (sem IVA)</strong>{' '}
+                        têm portes grátis. Abaixo desse valor, o cliente vê a
+                        mensagem configurada em «Mensagem — portes por calcular» e
+                        o transporte <strong>não entra</strong> no total pago online.
                     </p>
                     <p className="mt-2">
                         Desative <strong>Vendas online</strong> para bloquear
@@ -162,6 +195,114 @@ export default function SettingsIndex({
                             {contactFormUrl}
                         </a>
                     </p>
+                </div>
+            )}
+
+            {group === 'google_shopping' && (
+                <div className="mb-6 space-y-4">
+                    <div className="rounded-lg border border-brand-200 bg-white p-4 text-sm text-brand-600">
+                        <p className="font-medium text-brand-900">
+                            Google Shopping (feed pago)
+                        </p>
+                        <p className="mt-2">
+                            Este feed alimenta o{' '}
+                            <strong>Google Merchant Center</strong>. Depois
+                            liga uma campanha em{' '}
+                            <strong>Google Ads</strong> (Shopping ou
+                            Performance Max) para aparecer no carrossel «Produtos
+                            patrocinados».
+                        </p>
+                        <ol className="mt-3 list-decimal space-y-2 pl-5 text-xs">
+                            <li>
+                                Conta em{' '}
+                                <a
+                                    href="https://merchant.google.com/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="font-medium text-brand-900 underline"
+                                >
+                                    merchant.google.com
+                                </a>{' '}
+                                — verifique o domínio da loja e configure envio /
+                                devoluções.
+                            </li>
+                            <li>
+                                Ative <strong>Feed Google Shopping ativo</strong>{' '}
+                                abaixo e guarde.
+                            </li>
+                            <li>
+                                Em Merchant Center → Produtos → Feeds → adicionar
+                                feed «Primário», país <strong>Portugal</strong>,
+                                idioma <strong>Português</strong>, método{' '}
+                                <strong>URL programado</strong> e cole o URL
+                                abaixo.
+                            </li>
+                            <li>
+                                Aguarde aprovação dos produtos (imagem, preço e
+                                link devem coincidir com a loja).
+                            </li>
+                            <li>
+                                Em{' '}
+                                <a
+                                    href="https://ads.google.com/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="font-medium text-brand-900 underline"
+                                >
+                                    ads.google.com
+                                </a>{' '}
+                                crie campanha Shopping ligada ao Merchant Center.
+                            </li>
+                        </ol>
+                        <p className="mt-3 text-xs">
+                            Só entram produtos com estado <strong>Ativo</strong>.
+                            Preços no feed usam a taxa de IVA das configurações da
+                            loja quando «Preços com IVA» está ativo. A mesma marca e
+                            regra de IVA aplicam-se ao <strong>JSON-LD</strong> nas
+                            páginas da loja (SEO orgânico).
+                        </p>
+                        <p className="mt-2 text-xs">
+                            Sitemap (Search Console):{' '}
+                            <a
+                                href={googleShopping.sitemapUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium text-brand-900 underline break-all"
+                            >
+                                {googleShopping.sitemapUrl}
+                            </a>
+                        </p>
+                    </div>
+
+                    <div className="rounded-lg border border-brand-200 bg-white p-4 text-sm text-brand-600">
+                        <p className="font-medium text-brand-900">
+                            URL do feed (XML)
+                        </p>
+                        {googleShopping.feedUrl ? (
+                            <>
+                                <code className="mt-2 block break-all rounded bg-brand-50 p-2 text-xs">
+                                    {googleShopping.feedUrl}
+                                </code>
+                                <p className="mt-2 text-xs">
+                                    Abra num separador (logado ou anónimo) para
+                                    confirmar que vê XML com os produtos.
+                                </p>
+                            </>
+                        ) : (
+                            <p className="mt-2 text-amber-800 text-xs">
+                                {googleShopping.enabled
+                                    ? 'Token em falta — clique em «Regenerar URL do feed».'
+                                    : 'Ative o feed abaixo e guarde para ver o URL.'}
+                            </p>
+                        )}
+                        <button
+                            type="button"
+                            onClick={regenerateFeedToken}
+                            className="btn-secondary mt-3 text-sm"
+                        >
+                            Regenerar URL do feed
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -272,7 +413,7 @@ export default function SettingsIndex({
                 onSubmit={submit}
                 className="max-w-2xl space-y-5 rounded-lg border border-brand-200 bg-white p-6 shadow-card"
             >
-                {settings.map((setting) => (
+                {visibleSettings.map((setting) => (
                     <div key={setting.key}>
                         <label className="text-sm font-medium text-brand-900">
                             {setting.label}

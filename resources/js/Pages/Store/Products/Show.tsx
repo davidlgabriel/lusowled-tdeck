@@ -6,10 +6,11 @@ import ProductPrice from '@/Components/Store/ProductPrice';
 import ProductVariantSelector from '@/Components/Store/ProductVariantSelector';
 import VariantOptionsLine from '@/Components/Store/VariantOptionsLine';
 import SectionHeading from '@/Components/Store/SectionHeading';
+import PageSeo, { PageSeoData } from '@/Components/Seo/PageSeo';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { formatMoney } from '@/lib/money';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 function defaultVariantId(
@@ -22,9 +23,11 @@ function defaultVariantId(
 export default function ProductShow({
     product,
     relatedProducts,
+    seo,
 }: PageProps<{
     product: StoreProduct;
     relatedProducts: StoreProduct[];
+    seo: PageSeoData;
 }>) {
     const { store } = usePage<PageProps>().props;
     const variants = product.variants ?? [];
@@ -105,7 +108,7 @@ export default function ProductShow({
 
     return (
         <StoreLayout>
-            <Head title={product.name} />
+            <PageSeo seo={seo} />
 
             <div className="store-container pb-16">
                 <Breadcrumbs

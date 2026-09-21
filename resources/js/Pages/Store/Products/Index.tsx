@@ -1,15 +1,17 @@
+import PageSeo, { PageSeoData } from '@/Components/Seo/PageSeo';
 import Breadcrumbs from '@/Components/Store/Breadcrumbs';
 import Pagination from '@/Components/Store/Pagination';
 import ProductCard from '@/Components/Store/ProductCard';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 
 export default function ProductsIndex({
     products,
     categories,
     filters,
+    seo,
 }: PageProps<{
     products: {
         data: StoreProduct[];
@@ -24,6 +26,7 @@ export default function ProductsIndex({
         preco_max?: string;
         ordenar: string;
     };
+    seo: PageSeoData;
 }>) {
     const { store } = usePage<PageProps>().props;
     const [form, setForm] = useState(filters);
@@ -38,7 +41,7 @@ export default function ProductsIndex({
 
     return (
         <StoreLayout>
-            <Head title="Produtos" />
+            <PageSeo seo={seo} />
 
             <div className="store-container pb-16">
                 <Breadcrumbs

@@ -1,17 +1,20 @@
 import ProductCard from '@/Components/Store/ProductCard';
 import SectionHeading from '@/Components/Store/SectionHeading';
+import PageSeo, { PageSeoData } from '@/Components/Seo/PageSeo';
 import StoreLayout from '@/Layouts/StoreLayout';
 import { PageProps, StoreProduct } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function Home({
     featuredProducts,
     categories,
     promotions,
+    seo,
 }: PageProps<{
     featuredProducts: StoreProduct[];
     categories: { id: number; name: string; slug: string; description?: string; image_url?: string | null }[];
     promotions: { id: number; name: string; description?: string; code?: string }[];
+    seo: PageSeoData;
 }>) {
     const { cms } = usePage<PageProps>().props;
     const hero = cms.appearance.hero;
@@ -19,7 +22,7 @@ export default function Home({
 
     return (
         <StoreLayout>
-            <Head title="Início" />
+            <PageSeo seo={seo} />
 
             <section className="relative overflow-hidden bg-brand-100">
                 <div className="store-container">

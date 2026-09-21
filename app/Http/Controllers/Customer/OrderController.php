@@ -51,6 +51,7 @@ class OrderController extends Controller
                 'subtotal' => (float) $order->subtotal,
                 'discount_total' => (float) $order->discount_total,
                 'shipping_total' => (float) $order->shipping_total,
+                'shipping_quote_pending' => (bool) $order->shipping_quote_pending,
                 'tax_total' => (float) $order->tax_total,
                 'total' => (float) $order->total,
                 'currency' => $order->currency,
