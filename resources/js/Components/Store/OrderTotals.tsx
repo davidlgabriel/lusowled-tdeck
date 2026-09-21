@@ -12,8 +12,6 @@ export default function OrderTotals({
     shippingMode = 'quoted_later',
     shippingLabel,
     shippingMessage = null,
-    amountUntilFreeShipping = null,
-    shippingFreeThreshold = null,
 }: {
     subtotal: number;
     shipping: number;
@@ -24,8 +22,6 @@ export default function OrderTotals({
     shippingMode?: ShippingMode;
     shippingLabel?: string;
     shippingMessage?: string | null;
-    amountUntilFreeShipping?: number | null;
-    shippingFreeThreshold?: number | null;
 }) {
     const envioLabel =
         shippingLabel ??
@@ -63,18 +59,6 @@ export default function OrderTotals({
                     {shippingMessage}
                 </p>
             )}
-
-            {shippingMode === 'quoted_later' &&
-                amountUntilFreeShipping !== null &&
-                amountUntilFreeShipping > 0 &&
-                shippingFreeThreshold !== null && (
-                    <p className="text-xs text-brand-500">
-                        Portes grátis em encomendas a partir de{' '}
-                        {formatMoney(shippingFreeThreshold, currency)} (sem IVA).
-                        Faltam{' '}
-                        {formatMoney(amountUntilFreeShipping, currency)}.
-                    </p>
-                )}
 
             <div className="flex justify-between border-t border-brand-200 pt-3 text-base font-semibold text-brand-900">
                 <dt>

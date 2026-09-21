@@ -333,10 +333,6 @@ export default function CheckoutIndex({
                         shippingMode={cart.shipping_mode}
                         shippingLabel={cart.shipping_label}
                         shippingMessage={cart.shipping_message}
-                        amountUntilFreeShipping={
-                            cart.amount_until_free_shipping
-                        }
-                        shippingFreeThreshold={cart.shipping_free_threshold}
                     />
                     <button
                         type="submit"
